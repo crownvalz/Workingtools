@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlutterFlow-like Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f3f4f6;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 350px;
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: width 0.3s ease;
+            border-radius: 12px;
+            margin-left: 10px;
+            margin-right: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .boxed {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: #f0f4ff;
+            color: #5b7fdf;
+        }
+
+        .sidebar nav a i {
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        .user-info img {
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            margin-right: 10px;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: flex;
+            flex-direction: column;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 10px 0;
+            margin-top: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            transition: max-height 0.5s ease, opacity 0.5s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .dropdown.active .dropdown-content {
+            max-height: 200px; /* Set to a reasonable maximum height */
+            opacity: 1;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 10px 20px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #bbdefb;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px; /* Add margin for better alignment */
+        }
+
+        .navbar-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+            border-bottom: 1px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            margin-right: 10px;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .navbar-top .search-bar input {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 250px;
+            transition: border 0.3s ease;
+        }
+
+        .navbar-top .search-bar input:focus {
+            border-color: #5b7fdf;
+            outline: none;
+        }
+
+        .navbar-top .icons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-top .icons button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-top .icons button:hover {
+            background-color: #f0f4ff;
+            color: #5b7fdf;
+            border-color: #5b7fdf;
+        }
+
+        .content {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                position: relative; /* Relative position for smaller screens */
+                margin-left: 10px; /* Reduce margin */
+                margin-top: 10px; /* Reduce margin */
+            }
+
+            .navbar-top {
+                flex-direction: column; /* Stack items on smaller screens */
+            }
+
+            .navbar-top .search-bar input {
+                width: 100%; /* Full width on smaller screens */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%; /* Sidebar full width on extra small screens */
+                position: absolute; /* Overlay sidebar */
+                z-index: 1000;
+                transition: all 0.3s ease;
+                margin-left: 0; /* Remove left margin */
+                margin-top: 0; /* Remove top margin */
+            }
+
+            .navbar {
+                margin-top: 0; /* Remove margin */
+            }
+
+            .navbar-top {
+                width: 100%; /* Ensure full width */
+            }
+
+            .content {
+                padding: 15px; /* Reduce padding for smaller screens */
+            }
+
+            .user-info {
+                justify-content: flex-start;
+                margin-bottom: 10px; /* Add margin below user info */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+       <h1 href=""class="logo" style="">Safeme Plc</h1>
+        <div class="boxed">
+            <nav>
+                <a href="#" class="active"><i class="fas fa-project-diagram"></i>Projects</a>
+                <a href="#"><i class="fas fa-users"></i>My Organization</a>
+                <div class="dropdown" onclick="toggleDropdown(event)">
+                    <a href="#"><i class="fas fa-cogs"></i>Settings</a>
+                    <div class="dropdown-content">
+                        <a href="#">Profile Settings</a>
+                        <a href="#">Account Settings</a>
+                        <a href="#">Privacy Settings</a>
+                    </div>
+                </div>
+                <a href="https://digital.azaniabank.co.tz/onboard/#/login-rm"><i class="fas fa-phone"></i>Digital Onboarding</a>
+                <a href="#"><i class="fas fa-book"></i>Resources</a>
+                <a href="#"><i class="fas fa-comments"></i>Community</a>
+            </nav>
+        </div>
+        <div class="boxed user-info">
+            <img src="assets/img/wei.png" alt="User">
+            <div>
+                <div class="user-name">Dady Tee</div>
+                <small>crownvalz@gmail.com</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar and Main Content -->
+    <div class="navbar">
+        <div class="navbar-top boxed">
+            <div class="search-bar">
+                <input type="text" placeholder="Search your projects...">
+            </div>
+            <div class="icons">
+                <button><i class="fas fa-bell"></i></button>
+                <button><i class="fas fa-tag"></i></button>
+                <button><i class="fas fa-user"></i></button>
+                <!-- Check if the user is logged in and conditionally display either the image or icon -->
+                <button id="userIconBtn">
+                    <!-- User image will be displayed here when logged in -->
+                    <img id="userImage" src="assets/img/hero-bg.jpg" alt="User Image" style="display: none; width: 30px; height: 30px; border-radius: 50%;" />
+                    <!-- Fallback icon if the user is not logged in -->
+                    <i id="userIcon" class="fas fa-user"></i>
+                </button>
+            </div>
+        </div>
+<!-- Main Content -->
+<div class="content d-flex flex-column align-items-center p-4">
+    <h1 class="text-center mb-4">Dashboard</h1>
+    <div class="boxed d-flex flex-column align-items-center p-3">
+        <p class="text-center">Welcome to your dashboard. Here you can manage your projects and settings.</p>
+
+    </div>
+</div>
+    </div>
+
+    <script>
+        function toggleDropdown(event) {
+            event.stopPropagation(); // Prevent click event from bubbling up
+            const dropdown = event.currentTarget;
+            dropdown.classList.toggle('active'); // Toggle active class
+
+            // Reset height to allow transition
+            const dropdownContent = dropdown.querySelector('.dropdown-content');
+            if (dropdown.classList.contains('active')) {
+                dropdownContent.style.maxHeight = dropdownContent.scrollHeight + 'px'; // Set to content height
+            } else {
+                dropdownContent.style.maxHeight = '0'; // Collapse
+            }
+        }
+
+        // Close dropdown if clicked outside
+        window.addEventListener('click', () => {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+                dropdown.querySelector('.dropdown-content').style.maxHeight = '0'; // Collapse
+            });
+        });
+        // JavaScript to toggle image/icon based on login status
+            const isLoggedIn = true; // Replace this with your actual login check
+            if (isLoggedIn) {
+            document.getElementById("userIcon").style.display = "none";
+            document.getElementById("userImage").style.display = "block";
+            } else {
+            document.getElementById("userImage").style.display = "none";
+            document.getElementById("userIcon").style.display = "block";
+            }
+    </script>
+
+</body>
+</html>

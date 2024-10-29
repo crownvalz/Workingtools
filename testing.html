@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Image Upload and Crop</title>
+    <meta content="A dynamic image upload and cropping tool." name="description">
+    <meta content="image, upload, crop, tool" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/tree.png" rel="icon">
+    <link href="assets/img/tree.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            height: 100vh;
+        }
+
+        .custom-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .custom-boxed {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .img-preview {
+            overflow: hidden;
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .btn-upload {
+            margin-bottom: 20px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 576px) {
+            .custom-boxed {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="custom-sidebar">
+        <!-- Include your sidebar code here -->
+    </section>
+
+    <div class="custom-navbar">
+        <div class="custom-navbar-top custom-boxed">
+            <!-- Include your navbar code here -->
+        </div>
+
+        <div class="custom-content">
+            <div class="custom-boxed">
+                <h2>Upload and Crop Image</h2>
+                <input type="file" id="uploadImage" accept="image/*" class="btn btn-primary btn-upload" />
+                <div class="img-preview" id="imagePreview"></div>
+                <button id="cropButton" class="btn btn-success">Crop Image</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        const uploadImage = document.getElementById('uploadImage');
+        const imagePreview = document.getElementById('imagePreview');
+        let cropper;
+
+        uploadImage.addEventListener('change', (event) => {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.innerHTML = `<img id="image" src="${e.target.result}" style="width: 100%;" />`;
+                    const image = document.getElementById('image');
+                    cropper = new Cropper(image, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                    });
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+
+        document.getElementById('cropButton').addEventListener('click', () => {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas();
+                const croppedImage = canvas.toDataURL();
+                imagePreview.innerHTML = `<img src="${croppedImage}" style="width: 100%;" />`;
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+    </script>
+</body>
+
+</html>
