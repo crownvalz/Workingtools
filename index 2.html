@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Social Media</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <!-- Navigation Bar -->
+    <nav class="bg-indigo-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Faith Connect</h1>
+            <ul class="hidden md:flex space-x-6">
+                <li><a href="#" class="hover:text-yellow-400">Home</a></li>
+                <li><a href="#" class="hover:text-yellow-400">Sermons</a></li>
+                <li><a href="#" class="hover:text-yellow-400">Events</a></li>
+                <li><a href="#" class="hover:text-yellow-400">Community</a></li>
+            </ul>
+            <button class="md:hidden text-yellow-400">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-r from-indigo-900 to-yellow-500 text-white py-20 text-center px-4">
+        <h2 class="text-4xl font-extrabold">Welcome to Faith Connect</h2>
+        <p class="mt-4 text-lg">"Where faith and community come together."</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto py-10 px-4 flex flex-col md:flex-row gap-6">
+        <!-- Sidebar -->
+        <aside class="md:w-1/4 bg-white p-6 shadow-md rounded-lg">
+            <h3 class="text-xl font-semibold text-indigo-900">Quick Links</h3>
+            <ul class="mt-4 space-y-3">
+                <li><a href="#" class="text-gray-700 hover:text-indigo-600">Latest Sermons</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-indigo-600">Upcoming Events</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-indigo-600">Prayer Requests</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-indigo-600">Join a Group</a></li>
+            </ul>
+        </aside>
+
+        <!-- Community Feed -->
+        <main class="md:w-3/4 bg-white p-6 shadow-md rounded-lg">
+            <h3 class="text-2xl font-semibold text-indigo-900">Community Feed</h3>
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Post 1 -->
+                <div class="p-4 border rounded-lg">
+                    <p class="font-semibold text-indigo-800">Pastor John</p>
+                    <p class="text-gray-700">"God’s love never fails! Remember to trust in His plan."</p>
+                    <p class="text-sm text-gray-500">2 hours ago</p>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <img src="https://source.unsplash.com/200x200/?church" alt="Church" class="rounded-lg">
+                        <img src="https://source.unsplash.com/200x200/?bible" alt="Bible" class="rounded-lg">
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-red-500">❤️ Like</button>
+                        <button class="text-blue-500">💬 Comment</button>
+                    </div>
+                </div>
+                <!-- Post 2 -->
+                <div class="p-4 border rounded-lg">
+                    <p class="font-semibold text-indigo-800">Sarah Williams</p>
+                    <p class="text-gray-700">"Had a blessed time at today’s service! 🙏"</p>
+                    <p class="text-sm text-gray-500">5 hours ago</p>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <img src="https://source.unsplash.com/200x200/?prayer" alt="Prayer" class="rounded-lg">
+                        <img src="https://source.unsplash.com/200x200/?worship" alt="Worship" class="rounded-lg">
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-red-500">❤️ Like</button>
+                        <button class="text-blue-500">💬 Comment</button>
+                    </div>
+                </div>
+                <!-- Post 3 -->
+                <div class="p-4 border rounded-lg">
+                    <p class="font-semibold text-indigo-800">James Scott</p>
+                    <p class="text-gray-700">"Grateful for this wonderful community!"</p>
+                    <p class="text-sm text-gray-500">8 hours ago</p>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <img src="https://source.unsplash.com/200x200/?cross" alt="Cross" class="rounded-lg">
+                        <img src="https://source.unsplash.com/200x200/?church-service" alt="Church Service" class="rounded-lg">
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        <button class="text-red-500">❤️ Like</button>
+                        <button class="text-blue-500">💬 Comment</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-indigo-900 text-white py-6 text-center">
+        <p>&copy; 2025 Faith Connect. All Rights Reserved.</p>
+        <p class="mt-2">Follow us on <a href="#" class="text-yellow-400">Facebook</a> | <a href="#" class="text-yellow-400">Instagram</a> | <a href="#" class="text-yellow-400">YouTube</a></p>
+    </footer>
+</body>
+</html>

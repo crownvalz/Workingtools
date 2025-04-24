@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transpose Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-between h-screen p-4">
+
+    <!-- Header -->
+    <header class="w-full bg-indigo-900 text-white p-4 text-center">
+        <h1 class="text-3xl font-bold">Transpose Calculator</h1>
+        <p class="mt-2">Calculate musical key transpositions quickly!</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full sm:w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-w-full text-center mt-6">
+        <h2 class="text-2xl font-bold text-indigo-900">Transpose Calculator</h2>
+        
+        <div class="mt-6">
+            <label class="text-gray-700 font-semibold">Select Your Preferred Key:</label>
+            <select id="preferredKey" class="w-full p-3 border rounded mt-2" onchange="calculateTranspose()">
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#" selected>F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A">A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+            </select>
+        </div>
+        
+        <div class="mt-6">
+            <p class="text-gray-700 font-semibold">Select Current Key:</p>
+            <div id="currentKeyButtons" class="flex flex-wrap justify-center gap-4 mt-4">
+                <!-- Current Key Buttons -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="resultModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center w-3/4 max-w-md">
+            <h3 class="text-3xl font-bold text-indigo-900">Transpose Result</h3>
+            <p id="result" class="text-6xl font-extrabold text-indigo-700 mt-4"></p>
+            
+            <!-- Additional Result Information -->
+            <p id="suggestion" class="text-sm text-gray-500 mt-2"></p>
+            
+            <button onclick="closeModal()" class="mt-6 px-4 py-2 bg-indigo-900 text-white rounded hover:bg-indigo-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full bg-indigo-900 text-white p-4 text-center mt-6">
+        <p>&copy; 2025 Transpose Calculator | Designed for musicians</p>
+    </footer>
+
+    <script>
+        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        let preferredKey = "F#";
+        let currentKey = "C";
+
+        // Create the current key buttons
+        function createButtons(containerId) {
+            const container = document.getElementById(containerId);
+            notes.forEach(note => {
+                const button = document.createElement("button");
+                button.innerText = note;
+                button.className = "px-4 py-2 rounded bg-indigo-900 text-white hover:bg-indigo-700";
+                button.onclick = () => {
+                    currentKey = note;
+                    calculateTranspose();
+                };
+                container.appendChild(button);
+            });
+        }
+
+        // Transpose calculation
+        function calculateTranspose() {
+            preferredKey = document.getElementById("preferredKey").value;
+            const preferredIndex = notes.indexOf(preferredKey);
+            const currentIndex = notes.indexOf(currentKey);
+            let semitoneShift = preferredIndex - currentIndex;
+
+            // Ensure the result is limited to a range of -6 to 6 semitones
+            if (semitoneShift > 6) {
+                semitoneShift = semitoneShift - 12;
+            } else if (semitoneShift < -6) {
+                semitoneShift = semitoneShift + 12;
+            }
+
+            // Show the result
+            document.getElementById("result").innerText = semitoneShift;
+
+            // Suggest alternative transposition options based on the current transposition
+            const suggestionText = getAlternativeSuggestion(preferredIndex, currentIndex);
+            document.getElementById("suggestion").innerText = suggestionText;
+
+            document.getElementById("resultModal").classList.remove("hidden");
+        }
+
+        // Provide alternative transposition suggestion based on result
+        function getAlternativeSuggestion(preferredIndex, currentIndex) {
+            let alternativeShift = (preferredIndex - currentIndex + 11) % 12;
+            if (alternativeShift === 0) return ""; // No alternative if it loops back to the same note
+            return `Adjust the octave for better playability Alternatively transpose by ${alternativeShift} semitones for a different sound.`;   
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById("resultModal").classList.add("hidden");
+        }
+
+        // MIDI Setup
+        if (navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+        } else {
+            alert("Your browser does not support MIDI.");
+        }
+
+        // MIDI Success Callback
+        function onMIDISuccess(midiAccess) {
+            const inputs = midiAccess.inputs;
+            inputs.forEach(input => {
+                input.onmidimessage = handleMIDIMessage;
+            });
+        }
+
+        // MIDI Failure Callback
+        function onMIDIFailure() {
+            alert("Could not access your MIDI devices.");
+        }
+
+        // Handle MIDI messages (e.g., key presses)
+        function handleMIDIMessage(event) {
+            const command = event.data[0];
+            const note = event.data[1];
+
+            if (command === 144) {  // Note On message
+                const noteName = getNoteNameFromMidi(note);
+                currentKey = noteName;
+                calculateTranspose();
+            }
+        }
+
+        // Convert MIDI note number to note name (C, C#, D, etc.)
+        function getNoteNameFromMidi(midiNote) {
+            const noteIndex = midiNote % 12;
+            return notes[noteIndex];
+        }
+
+        // Create buttons for current keys
+        createButtons("currentKeyButtons");
+    </script>
+</body>
+</html>

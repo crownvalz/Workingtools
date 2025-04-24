@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Customer Service Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-900">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-800 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold">Banking Customer Service</h1>
+        <button id="darkModeToggle" class="bg-white text-blue-800 px-3 py-1 rounded hover:bg-gray-200">Dark Mode</button>
+    </nav>
+
+    <!-- Main Container -->
+    <section class="max-w-7xl mx-auto p-6">
+        <!-- Search Bar -->
+        <div class="mb-6 relative">
+            <input type="text" id="searchBox" placeholder="Search forms, links, or FAQs..." class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-600 focus:outline-none" oninput="debouncedSearchFunction()" aria-label="Search forms, links, or FAQs">
+            <button id="clearButton" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-label="Clear search">✕</button>
+            <!-- Suggestions Box -->
+            <div id="suggestionsBox" class="absolute w-full bg-white border border-gray-300 shadow-lg mt-1 rounded-lg hidden opacity-90">
+                <ul id="suggestionsList" class="max-h-60 overflow-y-auto p-3 space-y-2">
+                    <!-- Suggestions will be added here dynamically -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Account Management Forms -->
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <h2 class="text-lg font-bold mb-3">📄 Account Management Forms</h2>
+                <ul class="space-y-2">
+                    <li class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" class="w-5 h-5">
+                        <a href="/account_opening_form.pdf" target="_blank" class="text-blue-800 hover:text-blue-600">Account Opening Form</a>
+                    </li>
+                    <li class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" class="w-5 h-5">
+                        <a href="#" class="text-blue-800 hover:text-blue-600">Account Closure Request</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Transaction & Payment Forms -->
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <h2 class="text-lg font-bold mb-3">🏦 Transaction & Payment Forms</h2>
+                <ul class="space-y-2">
+                    <li class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" class="w-5 h-5">
+                        <a href="#" class="text-blue-800 hover:text-blue-600">Chequebook Request</a>
+                    </li>
+                    <li class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" class="w-5 h-5">
+                        <a href="#" class="text-blue-800 hover:text-blue-600">Funds Transfer Authorization</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Loan & Card Services Forms -->
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <h2 class="text-lg font-bold mb-3">💳 Loan & Card Services Forms</h2>
+                <ul class="space-y-2">
+                    <li class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" class="w-5 h-5">
+                        <a href="#" class="text-blue-800 hover:text-blue-600">Loan Application Form</a>
+                    </li>
+                    <li class="flex items-center space-x-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" class="w-5 h-5">
+                        <a href="#" class="text-blue-800 hover:text-blue-600">Credit Card Application</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- FAQs Section -->
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <h2 class="text-lg font-bold mb-3">❓ Frequently Asked Questions</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" class="text-blue-800 hover:text-blue-600">How to open a bank account?</a>
+                    </li>
+                    <li>
+                        <a href="#" class="text-blue-800 hover:text-blue-600">What do I do if my account is hacked?</a>
+                    </li>
+                    <li>
+                        <a href="#" class="text-blue-800 hover:text-blue-600">How can I apply for a loan?</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contact Support -->
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <h2 class="text-lg font-bold mb-3">📞 Contact Support</h2>
+                <p>If you need further assistance, feel free to contact our customer support team.</p>
+                <a href="tel:+1234567890" class="text-blue-800 hover:text-blue-600">Call Us</a>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+                <h2 class="text-lg font-bold mb-3">🔔 Notifications</h2>
+                <ul class="space-y-2">
+                    <li class="text-gray-700">Your loan application was approved!</li>
+                    <li class="text-gray-700">New account security update available.</li>
+                    <li class="text-gray-700">Your credit card bill is due in 5 days.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const formsData = [
+            { name: "Account Opening Form", link: "/account_opening_form.pdf" },
+            { name: "Account Closure Request", link: "#" },
+            { name: "Chequebook Request", link: "#" },
+            { name: "Funds Transfer Authorization", link: "#" },
+            { name: "Loan Application Form", link: "#" },
+            { name: "Credit Card Application", link: "#" },
+            { name: "Contact Information Update", link: "#" },
+            { name: "Change of Account Type", link: "#" },
+            { name: "Direct Debit Authorization", link: "#" },
+            { name: "Stop Payment Request", link: "#" },
+            { name: "Credit Limit Increase Request", link: "#" },
+            { name: "Card Dispute & Chargeback Form", link: "#" }
+        ];
+
+        const searchBox = document.getElementById('searchBox');
+        const clearButton = document.getElementById('clearButton');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+        const suggestionsList = document.getElementById('suggestionsList');
+        const body = document.body;
+        let debounceTimeout;
+
+        // Function to show suggestions
+        function searchFunction(query) {
+            suggestionsList.innerHTML = ''; // Clear previous suggestions
+
+            if (query.length > 0) {
+                suggestionsBox.classList.remove('hidden'); // Show suggestions box
+                const filteredSuggestions = formsData.filter(form => form.name.toLowerCase().includes(query));
+                
+                if (filteredSuggestions.length === 0) {
+                    const li = document.createElement('li');
+                    li.classList.add('p-2', 'cursor-pointer', 'hover:bg-blue-100', 'rounded');
+                    li.textContent = 'No results found';
+                    suggestionsList.appendChild(li); // Display no results message
+                } else {
+                    filteredSuggestions.forEach(suggestion => {
+                        const li = document.createElement('li');
+                        li.classList.add('p-2', 'cursor-pointer', 'hover:bg-blue-100', 'rounded');
+                        li.textContent = suggestion.name;
+                        li.onclick = () => window.location.href = suggestion.link;
+                        suggestionsList.appendChild(li);
+                    });
+                }
+            } else {
+                suggestionsBox.classList.add('hidden'); // Hide suggestions box if search is empty
+            }
+        }
+
+        // Debounced function to prevent rapid search calls
+        function debouncedSearchFunction() {
+            clearTimeout(debounceTimeout);
+            const query = searchBox.value.toLowerCase();
+            debounceTimeout = setTimeout(() => searchFunction(query), 500); // Wait 500ms after user stops typing
+        }
+
+        // Clear search box
+        clearButton.addEventListener('click', () => {
+            searchBox.value = '';
+            searchFunction(''); // Clear suggestions
+            suggestionsBox.classList.add('hidden');
+        });
+
+        // Hide suggestions when clicking outside the search box or scrolling
+        document.addEventListener('click', function(event) {
+            if (!searchBox.contains(event.target) && !suggestionsBox.contains(event.target)) {
+                suggestionsBox.classList.add('hidden');
+            }
+        });
+
+        // Hide suggestions when scrolling
+        body.addEventListener('scroll', function() {
+            suggestionsBox.classList.add('hidden');
+        });
+
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById("darkModeToggle");
+        darkModeToggle.addEventListener("click", () => {
+            document.body.classList.toggle("dark");
+        });
+    </script>
+</body>
+</html>
