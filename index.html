@@ -3,160 +3,186 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Twende Kazini</title>
+  <title>Job Listings</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            inter: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brand: '#f97316',
-            primary: '#2563eb',
-          },
-        },
-      },
-    };
-  </script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-  </style>
+
 </head>
-<body class="bg-gray-100 text-gray-800">
-
-<!-- Header -->
-<header class="sticky top-0 z-50 bg-white shadow">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-brand">Ajira TZ</h1>
-    <nav class="hidden lg:flex space-x-6 text-sm font-medium">
-      <a href="#" class="hover:text-brand transition">Home</a>
-      <a href="#" class="hover:text-brand transition">Jobs</a>
-      <a href="#" class="hover:text-brand transition">Employers</a>
-      <a href="#" class="hover:text-brand transition">Contact</a>
+<body class="bg-gray-100">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white shadow transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-orange-600">Ajira Tz</h1>
+      <button id="menuToggle" class="lg:hidden flex flex-col justify-center items-center w-8 h-8 relative z-50">
+        <span class="block w-6 h-0.5 bg-gray-800 transition-transform duration-300" id="line1"></span>
+        <span class="block w-6 h-0.5 bg-gray-800 mt-1 transition-opacity duration-300" id="line2"></span>
+        <span class="block w-6 h-0.5 bg-gray-800 mt-1 transition-transform duration-300" id="line3"></span>
+      </button>
+    </div>
+    
+    <nav id="navMenu" class="overflow-hidden max-h-0 transition-all duration-300 lg:max-h-none lg:overflow-visible lg:block lg:pb-4 lg:hidden">
+      <ul class="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4 px-4 pb-4 text-center text-gray-700">
+        <li><a href="#" class="hover:text-orange-600">Home</a></li>
+        <li><a href="#" class="hover:text-orange-600">Categories</a></li>
+        <li><a href="#" class="hover:text-orange-600">Contact</a></li>
+      </ul>
     </nav>
-    <button id="menu-btn" class="lg:hidden w-8 h-8 flex flex-col justify-between items-center">
-      <span class="w-full h-0.5 bg-gray-700"></span>
-      <span class="w-full h-0.5 bg-gray-700"></span>
-      <span class="w-full h-0.5 bg-gray-700"></span>
-    </button>
-  </div>
-  <div id="mobile-nav" class="lg:hidden overflow-hidden max-h-0 transition-all duration-300 bg-white">
-    <nav class="flex flex-col px-6 py-4 space-y-4 text-sm font-medium">
-      <a href="#" class="hover:text-brand">Home</a>
-      <a href="#" class="hover:text-brand">Jobs</a>
-      <a href="#" class="hover:text-brand">Employers</a>
-      <a href="#" class="hover:text-brand">Contact</a>
-    </nav>
-  </div>
-</header>
+  </header>
 
-<!-- Filters -->
-<section class="max-w-5xl mx-auto px-4 mt-8">
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <input type="text" id="searchInput" placeholder="Search job title..." class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-brand">
-    <div class="flex gap-2">
-      <button data-type="all" class="filter-btn bg-brand text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-orange-600">All</button>
-      <button data-type="Government" class="filter-btn bg-white border border-brand text-brand px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-50">Government</button>
-      <button data-type="Private" class="filter-btn bg-white border border-brand text-brand px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-50">Private</button>
-    </div>
-  </div>
-</section>
-
-<!-- Job Listings -->
-<main class="max-w-5xl mx-auto px-4 py-10 space-y-6" id="jobList">
-  <!-- Template Job Card -->
-  <article class="job-card" data-title="HR Consultant at Heifer International" data-type="Private">
-    <div class="rounded-xl p-6 flex flex-col md:flex-row justify-between gap-6 bg-white shadow border hover:shadow-lg transition">
-      <div class="flex items-start md:items-center gap-4">
-        <img src="tra-logo.png" alt="Heifer Logo" class="w-16 h-16 object-cover rounded-xl border shadow-sm">
-        <div>
-          <h2 class="text-lg font-semibold text-gray-800">HR Consultant at Heifer International</h2>
-          <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-4">
-            <span><i class="fa fa-calendar text-gray-400 mr-1"></i>Posted: May 29, 2025</span>
-            <span><i class="fa fa-clock text-gray-400 mr-1"></i>Full Time</span>
-            <span class="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-xs">Private</span>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 flex-wrap">
-        <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
-        <a href="https://wa.me/?text=Check%20this%20job%20from%20Twende%20Kazini" target="_blank" class="text-green-500 text-sm hover:underline flex items-center gap-2">
-          <i class="fab fa-whatsapp"></i> WhatsApp
-        </a>
-        <a href="#" class="ml-auto md:ml-0 bg-brand hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">View More</a>
+  <!-- Filters -->
+  <section class="max-w-5xl mx-auto px-4 mt-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <input type="text" id="searchInput" placeholder="Search job title..." class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-orange-600">
+      <div class="flex gap-2">
+        <button data-type="all" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-orange-600 hover:bg-orange-50">All</button>
+        <button data-type="Government" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-orange-600 hover:bg-orange-50">Government</button>
+        <button data-type="Private" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-orange-600 hover:bg-orange-50">Private</button>
       </div>
     </div>
-  </article>
+  </section>
 
-  <!-- Clone Example for Realism -->
-  <article class="job-card" data-title="Revenue Officer at TRA" data-type="Government">
-    <div class="rounded-xl p-6 flex flex-col md:flex-row justify-between gap-6 bg-white shadow border hover:shadow-lg transition">
-      <div class="flex items-start md:items-center gap-4">
-        <img src="tra-logo.png" alt="TRA Logo" class="w-16 h-16 object-cover rounded-xl border shadow-sm">
-        <div>
-          <h2 class="text-lg font-semibold text-gray-800">Revenue Officer at TRA</h2>
-          <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-4">
-            <span><i class="fa fa-calendar text-gray-400 mr-1"></i>Posted: May 25, 2025</span>
-            <span><i class="fa fa-clock text-gray-400 mr-1"></i>Full Time</span>
-            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">Government</span>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 flex-wrap">
-        <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
-        <a href="#" class="ml-auto md:ml-0 bg-brand hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">View More</a>
-      </div>
-    </div>
-  </article>
-</main>
+  <!-- Job Listings -->
+  <main class="max-w-5xl mx-auto px-4 py-10">
+    <div id="jobContainer" class="space-y-4"></div>
+    <div id="pagination" class="mt-6 flex justify-center gap-2"></div>
+  </main>
 
-<!-- Footer -->
-<footer class="text-center text-sm text-gray-600 py-6 border-t mt-10">
-  © 2025 <span class="font-semibold text-brand">Twende Kazini</span>. All rights reserved.
-</footer>
+  <script>
+    let jobs = [];
+    let currentPage = 1;
+    const jobsPerPage = 3;
+    let currentFilter = "all";
+    let currentSearch = "";
 
-<!-- JavaScript -->
-<script>
-  const menuBtn = document.getElementById('menu-btn');
-  const mobileNav = document.getElementById('mobile-nav');
-  menuBtn.addEventListener('click', () => {
-    mobileNav.classList.toggle('max-h-96');
-    mobileNav.classList.toggle('max-h-0');
-  });
+    fetch('jobs.csv')
+      .then(res => res.text())
+      .then(data => {
+        const lines = data.trim().split('\n').slice(1);
+        jobs = lines.map(line => {
+          const [title, organization, posted, type] = line.split(',');
+          return { title, organization, posted, type };
+        });
+        renderJobs();
+        setupFilters();
+        setupSearch();
+      });
 
-  const searchInput = document.getElementById('searchInput');
-  const jobCards = document.querySelectorAll('.job-card');
-  const filterButtons = document.querySelectorAll('.filter-btn');
+    function renderJobs() {
+      const container = document.getElementById("jobContainer");
+      container.innerHTML = "";
 
-  let activeFilter = 'all';
+      const filtered = jobs.filter(job => {
+        const matchType = currentFilter === "all" || job.type === currentFilter;
+        const matchSearch = job.title.toLowerCase().includes(currentSearch.toLowerCase());
+        return matchType && matchSearch;
+      });
 
-  searchInput.addEventListener('input', () => filterJobs());
+      const start = (currentPage - 1) * jobsPerPage;
+      const paginated = filtered.slice(start, start + jobsPerPage);
 
-  filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeFilter = btn.dataset.type;
-      filterButtons.forEach(b => b.classList.remove('bg-brand', 'text-white'));
-      btn.classList.add('bg-brand', 'text-white');
-      filterJobs();
+      paginated.forEach(job => {
+        const article = document.createElement('article');
+        article.className = "job-card";
+        article.innerHTML = `
+          <div class="rounded-xl p-6 flex flex-col md:flex-row justify-between gap-6 bg-white shadow border hover:shadow-lg transition">
+            <div class="flex items-start md:items-center gap-4">
+              <img src="tra-logo.png" alt="${job.organization} Logo" class="w-16 h-16 object-cover rounded-xl border shadow-sm">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-800">${job.title} at ${job.organization}</h2>
+                <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-4">
+                  <span><i class="fa fa-calendar text-gray-400 mr-1"></i>${job.posted}</span>
+                  <span><i class="fa fa-clock text-gray-400 mr-1"></i>Full Time</span>
+                  <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">${job.type}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+          <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
+              <a href="https://wa.me/?text=Check%20this%20job%20from%20Twende%20Kazini" target="_blank" class="text-green-500 text-sm hover:underline flex items-center gap-2">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+              </a>
+              <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}" class="ml-auto md:ml-0 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">Apply</a>
+            </div>
+          </div>`;
+        container.appendChild(article);
+      });
+
+      renderPagination(filtered.length);
+    }
+
+    function renderPagination(total) {
+      const totalPages = Math.ceil(total / jobsPerPage);
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        btn.className = `px-3 py-1 rounded ${i === currentPage ? 'bg-orange-600 text-white' : 'bg-white border text-orange-600'} hover:bg-orange-100`;
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          renderJobs();
+        });
+        pagination.appendChild(btn);
+      }
+    }
+
+    function setupFilters() {
+      const buttons = document.querySelectorAll('.filter-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentFilter = btn.dataset.type;
+          currentPage = 1;
+          buttons.forEach(b => b.classList.remove('bg-orange-600', 'text-white'));
+          buttons.forEach(b => b.classList.add('bg-white', 'text-orange-600'));
+          btn.classList.add('bg-orange-600', 'text-white');
+          btn.classList.remove('bg-white', 'text-orange-600');
+          renderJobs();
+        });
+      });
+
+      // Set default selected
+      document.querySelector('.filter-btn[data-type="all"]').classList.add('bg-orange-600', 'text-white');
+    }
+
+    function setupSearch() {
+      document.getElementById("searchInput").addEventListener('input', (e) => {
+        currentSearch = e.target.value;
+        currentPage = 1;
+        renderJobs();
+      });
+    }
+  </script>
+
+    <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const navMenu = document.getElementById("navMenu");
+    const line1 = document.getElementById("line1");
+    const line2 = document.getElementById("line2");
+    const line3 = document.getElementById("line3");
+
+    let menuOpen = false;
+
+    menuToggle.addEventListener("click", () => {
+      menuOpen = !menuOpen;
+
+      // Animate menu button
+      line1.classList.toggle("rotate-45", menuOpen);
+      line1.classList.toggle("translate-y-[10px]", menuOpen);
+      line2.classList.toggle("opacity-0", menuOpen);
+      line3.classList.toggle("-rotate-45", menuOpen);
+      line3.classList.toggle("-translate-y-[10px]", menuOpen);
+
+      // Animate nav menu
+      if (menuOpen) {
+        navMenu.style.maxHeight = navMenu.scrollHeight + "px";
+      } else {
+        navMenu.style.maxHeight = "0px";
+      }
     });
-  });
-
-  function filterJobs() {
-    const query = searchInput.value.toLowerCase();
-    jobCards.forEach(card => {
-      const title = card.dataset.title.toLowerCase();
-      const type = card.dataset.type;
-      const matchSearch = title.includes(query);
-      const matchType = activeFilter === 'all' || type === activeFilter;
-      card.style.display = matchSearch && matchType ? 'block' : 'none';
-    });
-  }
-</script>
+  </script>
 </body>
 </html>

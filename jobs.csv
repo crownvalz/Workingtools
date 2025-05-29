@@ -1,7 +1,8 @@
-title,date,link
-HR Consultant at Heifer International,2025-05-29,https://example.com/hr
-Software Developer,2025-05-30,https://example.com/dev
-Accountant,2025-06-01,https://example.com/accountant
-HR Consultant at Heifer International,2025-05-29,https://example.com/hr
-Software Developer,2025-05-30,https://example.com/dev
-Accountant,2025-06-01,https://example.com/accountant
+title,organization,posted,type,experience,qualifications,description
+Human Resources Officer II,Test Co,2025-06-01,Government, "Bachelor's degree in Marketing or Communications","Design and execute marketing campaigns to promote NGO initiatives. Manage social media channels and engage with donors and stakeholders. Analyze campaign performance and generate reports."
+Accountant,TST Bank,2025-06-03,Private
+Software Developer,EXP Dev Center,2025-06-04,Private
+Accountant,TST Bank,2025-06-03,Private
+Software Developer,EXP Dev Center,2025-06-04,Private
+Accountant,TST Bank,2025-06-03,Private
+Software Developer,EXP Dev Center,2025-06-04,Private

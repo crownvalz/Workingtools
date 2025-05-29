@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <main class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+    <h1 id="jobTitle" class="text-3xl font-bold mb-4 text-gray-800">Loading...</h1>
+    <div class="text-sm text-gray-500 mb-4 flex flex-wrap gap-4">
+      <span id="jobOrg"></span>
+      <span id="jobPosted"></span>
+      <span id="jobType" class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium"></span>
+    </div>
+
+    <div class="space-y-4 text-gray-700">
+      <div>
+        <h2 class="font-semibold text-lg text-orange-600">Experience Required</h2>
+        <p id="jobExperience" class="ml-2 text-sm"></p>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-lg text-orange-600">Qualifications</h2>
+        <p id="jobQualifications" class="ml-2 text-sm"></p>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-lg text-orange-600">Job Description</h2>
+        <p id="jobDescription" class="ml-2 text-sm whitespace-pre-line"></p>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-lg text-orange-600">How to Apply</h2>
+        <p class="ml-2 text-sm text-gray-600">Please follow the application instructions provided by the organization. Check their official website or contact them directly.</p>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <a href="index.html" class="text-orange-600 hover:underline text-sm">&larr; Back to Listings</a>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const titleParam = params.get("title");
+    const orgParam = params.get("organization");
+
+    fetch("jobs.csv")
+      .then(res => res.text())
+      .then(data => {
+        const lines = data.trim().split("\n");
+        const headers = lines[0].split(",");
+        const entries = lines.slice(1).map(line => {
+          const values = line.split(",");
+          const job = {};
+          headers.forEach((h, i) => job[h.trim()] = values[i] ? values[i].trim() : '');
+          return job;
+        });
+
+        const job = entries.find(j => j.title === titleParam && j.organization === orgParam);
+
+        if (job) {
+          document.getElementById("jobTitle").textContent = `${job.title} at ${job.organization}`;
+          document.getElementById("jobOrg").textContent = `Organization: ${job.organization}`;
+          document.getElementById("jobPosted").textContent = `Posted on: ${job.posted}`;
+          document.getElementById("jobType").textContent = job.type;
+          document.getElementById("jobExperience").textContent = job.experience || "Not specified";
+          document.getElementById("jobQualifications").textContent = job.qualifications || "Not specified";
+          document.getElementById("jobDescription").textContent = job.description || "No description provided.";
+        } else {
+          document.querySelector("main").innerHTML = `
+            <h1 class="text-xl font-bold text-red-600 mb-4">Job not found</h1>
+            <p class="mb-4 text-gray-600">This job listing could not be found. Please return to the listings page.</p>
+            <a href="index.html" class="text-orange-600 hover:underline text-sm">&larr; Back to Listings</a>
+          `;
+        }
+      })
+      .catch(err => {
+        console.error("Error loading job data:", err);
+        document.querySelector("main").innerHTML = `<p class="text-red-600">Failed to load job details.</p>`;
+      });
+  </script>
+</body>
+</html>
