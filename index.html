@@ -15,7 +15,7 @@
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-white shadow transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-orange-600">Ajira Tz</h1>
+      <h1 class="text-2xl font-bold text-blue-600">Ajira Tz</h1>
       <button id="menuToggle" class="lg:hidden flex flex-col justify-center items-center w-8 h-8 relative z-50">
         <span class="block w-6 h-0.5 bg-gray-800 transition-transform duration-300" id="line1"></span>
         <span class="block w-6 h-0.5 bg-gray-800 mt-1 transition-opacity duration-300" id="line2"></span>
@@ -25,9 +25,9 @@
     
     <nav id="navMenu" class="overflow-hidden max-h-0 transition-all duration-300 lg:max-h-none lg:overflow-visible lg:block lg:pb-4 lg:hidden">
       <ul class="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4 px-4 pb-4 text-center text-gray-700">
-        <li><a href="#" class="hover:text-orange-600">Home</a></li>
-        <li><a href="#" class="hover:text-orange-600">Categories</a></li>
-        <li><a href="#" class="hover:text-orange-600">Contact</a></li>
+        <li><a href="#" class="hover:text-blue-600">Home</a></li>
+        <li><a href="#" class="hover:text-blue-600">Categories</a></li>
+        <li><a href="#" class="hover:text-blue-600">Contact</a></li>
       </ul>
     </nav>
   </header>
@@ -35,11 +35,11 @@
   <!-- Filters -->
   <section class="max-w-5xl mx-auto px-4 mt-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <input type="text" id="searchInput" placeholder="Search job title..." class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-orange-600">
+      <input type="text" id="searchInput" placeholder="Search job title..." class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-blue-600">
       <div class="flex gap-2">
-        <button data-type="all" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-orange-600 hover:bg-orange-50">All</button>
-        <button data-type="Government" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-orange-600 hover:bg-orange-50">Government</button>
-        <button data-type="Private" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-orange-600 hover:bg-orange-50">Private</button>
+        <button data-type="all" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-blue-600 hover:bg-blue-500">All</button>
+        <button data-type="Government" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-blue-600 hover:bg-blue-50">Government</button>
+        <button data-type="Private" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-blue-600 hover:bg-blue-50">Private</button>
       </div>
     </div>
   </section>
@@ -101,10 +101,10 @@
             </div>
             <div class="flex items-center gap-3 flex-wrap">
           <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
-              <a href="https://wa.me/?text=Check%20this%20job%20from%20Twende%20Kazini" target="_blank" class="text-green-500 text-sm hover:underline flex items-center gap-2">
+              <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank" class="text-green-500 text-sm hover:underline flex items-center gap-2">
                 <i class="fab fa-whatsapp"></i> WhatsApp
               </a>
-              <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}" class="ml-auto md:ml-0 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">Apply</a>
+              <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}" class="ml-auto md:ml-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">Apply</a>
             </div>
           </div>`;
         container.appendChild(article);
@@ -121,7 +121,7 @@
       for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement("button");
         btn.textContent = i;
-        btn.className = `px-3 py-1 rounded ${i === currentPage ? 'bg-orange-600 text-white' : 'bg-white border text-orange-600'} hover:bg-orange-100`;
+        btn.className = `px-3 py-1 rounded ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white border text-blue-600'} hover:bg-blue-100`;
         btn.addEventListener('click', () => {
           currentPage = i;
           renderJobs();
@@ -136,16 +136,16 @@
         btn.addEventListener('click', () => {
           currentFilter = btn.dataset.type;
           currentPage = 1;
-          buttons.forEach(b => b.classList.remove('bg-orange-600', 'text-white'));
-          buttons.forEach(b => b.classList.add('bg-white', 'text-orange-600'));
-          btn.classList.add('bg-orange-600', 'text-white');
-          btn.classList.remove('bg-white', 'text-orange-600');
+          buttons.forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+          buttons.forEach(b => b.classList.add('bg-white', 'text-blue-600'));
+          btn.classList.add('bg-blue-600', 'text-white');
+          btn.classList.remove('bg-white', 'text-blue-600');
           renderJobs();
         });
       });
 
       // Set default selected
-      document.querySelector('.filter-btn[data-type="all"]').classList.add('bg-orange-600', 'text-white');
+      document.querySelector('.filter-btn[data-type="all"]').classList.add('bg-blue-600', 'text-white');
     }
 
     function setupSearch() {
