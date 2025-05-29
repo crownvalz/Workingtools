@@ -1,477 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-<title>Passport Photo AI</title>
-<meta content="A modern and secure passport photo cropping tool." name="description">
-<meta content="passport, photo, crop, secure, tool" name="keywords">
-
-<!-- Favicons -->
-<link href="assets/img/tree.png" rel="icon">
-<link href="assets/img/tree.png" rel="apple-touch-icon">
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Vendor CSS Files -->
-<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link href="assets/css/style.css" rel="stylesheet">
-
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-body {
-    display: flex;
-    height: 100vh;
-    background-color: #f3f4f6;
-}
-
-/* Sidebar Styling */
-.custom-sidebar {
-    width: 350px;
-    background-color: #eff0f9;
-    border-right: 1px solid #ddd;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: width 0.3s ease;
-    border-radius: 12px;
-    margin: 20px 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.custom-sidebar .custom-logo {
-    display: flex;
-    align-items: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.custom-boxed {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #fff;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.custom-sidebar nav a {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    text-decoration: none;
-    color: #333;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    transition: background 0.3s ease;
-}
-
-.custom-sidebar nav a:hover,
-.custom-sidebar nav a.custom-active {
-    background-color: #f0f4ff;
-    color: #5b7fdf;
-}
-
-.custom-sidebar nav a i {
-    margin-right: 15px;
-    font-size: 18px;
-}
-
-.custom-user-info {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    margin-top: auto;
-}
-
-.custom-user-info img {
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    margin-right: 10px;
-}
-
-/* Dropdown Menu */
-.custom-dropdown {
-    position: relative;
-}
-
-.custom-dropdown-content {
-    display: flex;
-    flex-direction: column;
-    background-color: #e3f2fd;
-    border-radius: 8px;
-    padding: 10px 0;
-    margin-top: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: max-height 0.5s ease, opacity 0.5s ease;
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    padding: 20px;
-}
-
-.custom-dropdown.custom-active .custom-dropdown-content {
-    max-height: 200px;
-    opacity: 1;
-}
-
-.custom-dropdown-content a {
-    color: #333;
-    padding: 10px 20px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-}
-
-.custom-dropdown-content a:hover {
-    background-color: #bbdefb;
-}
-
-/* Navbar Styling */
-.custom-navbar {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-}
-
-.custom-navbar-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 25px;
-    border-bottom: 1px solid #ddd;
-    background-color: #fff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 15px;
-    margin-right: 10px;
-    animation: fadeIn 0.5s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.custom-navbar-top .custom-search-bar input {
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 250px;
-    transition: border 0.3s ease;
-}
-
-.custom-navbar-top .custom-search-bar input:focus {
-    border-color: #5b7fdf;
-    outline: none;
-}
-
-.custom-navbar-top .custom-icons {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.custom-navbar-top .custom-icons button {
-    background: none;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 18px;
-    color: #333;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease;
-}
-
-.custom-navbar-top .custom-icons button:hover {
-    background-color: #f0f4ff;
-    color: #5b7fdf;
-    border-color: #5b7fdf;
-}
-
-        /* Content Wrapper */
-        .custom-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* Custom Box */
-        .custom-boxed {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            text-align: start;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        /* Header Styles */
-        .custom-header {
-            font-size: 24px;
-            color: #333;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .custom-boxed:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Content Text */
-        .custom-content-text {
-            font-size: 16px;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        /* Content Boxes */
-        .custom-card {
-            display: flex;
-            align-items: center;
-            background-color: #f1f5f9;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .custom-card:hover {
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.12);
-        }
-
-        .custom-card-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #222;
-            text-align: center;
-        }
-
-        .custom-card-icon {
-            font-size: 32px;
-            color: #5b7fdf;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .custom-boxed {
-                padding: 25px;
-                text-align: left;
-            }
-
-            .custom-header {
-                font-size: 20px;
-                text-align: left;
-            }
-
-            .custom-content-text {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .custom-boxed {
-                padding: 20px;
-            }
-
-            .custom-card {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .custom-header {
-                font-size: 18px;
-            }
-
-            .custom-content-text {
-                font-size: 14px;
-            }
-
-            .custom-card-title {
-                font-size: 16px;
-            }
-        }
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .custom-sidebar {
-        width: 200px;
-        position: relative;
-        margin-left: 10px;
-        margin-top: 10px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Twende Kazini</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: '#f97316',
+            primary: '#2563eb',
+          },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
     }
-
-    .custom-navbar-top {
-        flex-direction: column;
-    }
-
-    .custom-navbar-top .custom-search-bar input {
-        width: 100%;
-    }
-}
-
-@media (max-width: 576px) {
-    .custom-sidebar {
-        width: 100%;
-        position: absolute;
-        z-index: 1000;
-        transition: all 0.3s ease;
-        margin-left: 0;
-        margin-top: 0;
-    }
-
-    .custom-navbar {
-        margin-top: 0;
-    }
-
-    .custom-navbar-top {
-        width: 100%;
-    }
-
-    .custom-content {
-        padding: 15px;
-    }
-
-    .custom-user-info {
-        justify-content: flex-start;
-        margin-bottom: 10px;
-    }
-}
-
-</style>
+  </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-<!-- Sidebar -->
-<section class="custom-sidebar">
-    <div class="custom-logo" style="display: flex; align-items: center; justify-content: space-between;">
-        <h1 class="logo-name" style="font-size: 24px; margin: 0;">Safeme Plc</h1>
-        <img src="assets/img/wei.png" alt="User" class="logo-img" style="width: 30px; height: 30px; border-radius: 50%;">
-    </div>
-<div class="custom-boxed">
-    <nav>
-        <a href="#" class="custom-active"><i class="fas fa-dashboard"></i>Dashboard</a>
-        <a href="croptool.html"><i class="fas fa-user"></i>Passport Size</a>
-        <a href="https://digital.azaniabank.co.tz/onboard/#/login-rm"><i class="fas fa-phone"></i>Digital Onboarding</a>
-        <a href="https://crownvalz.github.io/Abraham/bond.html"><i class="fas fa-book"></i>Loan & Bond Calculator</a>
-        <a href="#"><i class="fas fa-comments"></i>Community</a>
-        <div class="custom-dropdown" onclick="toggleDropdown(event)">
-            <a href="#"><i class="fas fa-cogs"></i>Settings</a>
-            <div class="custom-dropdown-content">
-                <a href="#">Profile Settings</a>
-                <a href="#">Account Settings</a>
-                <a href="#">Privacy Settings</a>
-            </div>
-        </div>
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white shadow">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-brand">Twende Kazini</h1>
+    <nav class="hidden lg:flex space-x-6 text-sm font-medium">
+      <a href="#" class="hover:text-brand transition">Home</a>
+      <a href="#" class="hover:text-brand transition">Jobs</a>
+      <a href="#" class="hover:text-brand transition">Employers</a>
+      <a href="#" class="hover:text-brand transition">Contact</a>
     </nav>
-</div>
-<a href="https://digital.azaniabank.co.tz/onboard/#/login-rm" class="custom-boxed custom-user-info" style="text-decoration: none; color: inherit;">
-    <div style="display: flex; align-items: center;">
-        <img src="assets/img/wei.png" alt="User" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-        <div>
-            <div class="custom-user-name"><strong>Dady Tee</strong></div>
-            <small>crownvalz@gmail.com</small>
-        </div>
+    <button id="menu-btn" class="lg:hidden w-8 h-8 flex flex-col justify-between items-center">
+      <span class="w-full h-0.5 bg-gray-700"></span>
+      <span class="w-full h-0.5 bg-gray-700"></span>
+      <span class="w-full h-0.5 bg-gray-700"></span>
+    </button>
+  </div>
+  <div id="mobile-nav" class="lg:hidden overflow-hidden max-h-0 transition-all duration-300 bg-white">
+    <nav class="flex flex-col px-6 py-4 space-y-4 text-sm font-medium">
+      <a href="#" class="hover:text-brand">Home</a>
+      <a href="#" class="hover:text-brand">Jobs</a>
+      <a href="#" class="hover:text-brand">Employers</a>
+      <a href="#" class="hover:text-brand">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Filters -->
+<section class="max-w-5xl mx-auto px-4 mt-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <input type="text" id="searchInput" placeholder="Search job title..." class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-brand">
+    <div class="flex gap-2">
+      <button data-type="all" class="filter-btn bg-brand text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-orange-600">All</button>
+      <button data-type="Government" class="filter-btn bg-white border border-brand text-brand px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-50">Government</button>
+      <button data-type="Private" class="filter-btn bg-white border border-brand text-brand px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-50">Private</button>
     </div>
-</a>
+  </div>
 </section>
 
-<!-- Navbar and Main Content -->
-<div class="custom-navbar">
-<div class="custom-navbar-top custom-boxed">
-    <div class="custom-search-bar">
-        <input type="text" placeholder="Search your projects...">
-    </div>
-    <div class="custom-icons">
-        <button><i class="fas fa-bell"></i></button>
-        <button><i class="fas fa-tag"></i></button>
-        <button><i class="fas fa-user"></i></button>
-        <button id="userIconBtn">
-            <img id="userImage" src="assets/img/hero-bg.jpg" alt="User Image" style="display: none; width: 30px; height: 30px; border-radius: 50%;" />
-            <i id="userIcon" class="fas fa-user"></i>
-        </button>
-    </div>
-</div>
-    <!-- Content Section -->
-    <div class="custom-content">
-        <!-- Additional Content Cards -->
-        <div class="custom-card">
-            <i class="custom-card-icon fas fa-project-diagram"></i>
-            <div class="custom-card-title">Project Management</div>
-            <p class="custom-content-text">Manage and track all your projects with ease and stay updated on your progress.</p>
+<!-- Job Listings -->
+<main class="max-w-5xl mx-auto px-4 py-10 space-y-6" id="jobList">
+  <!-- Template Job Card -->
+  <article class="job-card" data-title="HR Consultant at Heifer International" data-type="Private">
+    <div class="rounded-xl p-6 flex flex-col md:flex-row justify-between gap-6 bg-white shadow border hover:shadow-lg transition">
+      <div class="flex items-start md:items-center gap-4">
+        <img src="tra-logo.png" alt="Heifer Logo" class="w-16 h-16 object-cover rounded-xl border shadow-sm">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">HR Consultant at Heifer International</h2>
+          <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-4">
+            <span><i class="fa fa-calendar text-gray-400 mr-1"></i>Posted: May 29, 2025</span>
+            <span><i class="fa fa-clock text-gray-400 mr-1"></i>Full Time</span>
+            <span class="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-xs">Private</span>
+          </div>
         </div>
-
-        <div class="custom-card">
-            <i class="custom-card-icon fas fa-users"></i>
-            <div class="custom-card-title">Team Collaboration</div>
-            <p class="custom-content-text">Collaborate with your team in real-time, share insights, and achieve goals together.</p>
-        </div>
-
-        <div class="custom-card">
-            <i class="custom-card-icon fas fa-chart-line"></i>
-            <div class="custom-card-title">Analytics & Insights</div>
-            <p class="custom-content-text">Gain insights into your project's performance and make data-driven decisions.</p>
-        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
+        <a href="https://wa.me/?text=Check%20this%20job%20from%20Twende%20Kazini" target="_blank" class="text-green-500 text-sm hover:underline flex items-center gap-2">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        <a href="#" class="ml-auto md:ml-0 bg-brand hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">View More</a>
+      </div>
     </div>
-</div>
+  </article>
 
+  <!-- Clone Example for Realism -->
+  <article class="job-card" data-title="Revenue Officer at TRA" data-type="Government">
+    <div class="rounded-xl p-6 flex flex-col md:flex-row justify-between gap-6 bg-white shadow border hover:shadow-lg transition">
+      <div class="flex items-start md:items-center gap-4">
+        <img src="tra-logo.png" alt="TRA Logo" class="w-16 h-16 object-cover rounded-xl border shadow-sm">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Revenue Officer at TRA</h2>
+          <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-4">
+            <span><i class="fa fa-calendar text-gray-400 mr-1"></i>Posted: May 25, 2025</span>
+            <span><i class="fa fa-clock text-gray-400 mr-1"></i>Full Time</span>
+            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">Government</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
+        <a href="#" class="ml-auto md:ml-0 bg-brand hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">View More</a>
+      </div>
+    </div>
+  </article>
+</main>
 
-<!-- JavaScript Files -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<!-- Footer -->
+<footer class="text-center text-sm text-gray-600 py-6 border-t mt-10">
+  © 2025 <span class="font-semibold text-brand">Twende Kazini</span>. All rights reserved.
+</footer>
+
+<!-- JavaScript -->
 <script>
-// JavaScript to toggle image/icon based on login status
-const isLoggedIn = true; // Replace this with your actual login check
-if (isLoggedIn) {
-document.getElementById("userIcon").style.display = "none";
-document.getElementById("userImage").style.display = "block";
-} else {
-document.getElementById("userImage").style.display = "none";
-document.getElementById("userIcon").style.display = "block";
-}
-function toggleDropdown(event) {
-    event.currentTarget.classList.toggle('custom-active');
-}
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileNav = document.getElementById('mobile-nav');
+  menuBtn.addEventListener('click', () => {
+    mobileNav.classList.toggle('max-h-96');
+    mobileNav.classList.toggle('max-h-0');
+  });
 
-const userIconBtn = document.getElementById("userIconBtn");
-const userImage = document.getElementById("userImage");
-const userIcon = document.getElementById("userIcon");
+  const searchInput = document.getElementById('searchInput');
+  const jobCards = document.querySelectorAll('.job-card');
+  const filterButtons = document.querySelectorAll('.filter-btn');
 
-window.addEventListener("resize", function () {
-    if (window.innerWidth <= 576) {
-        userIcon.style.display = "none";
-        userImage.style.display = "block";
-    } else {
-        userIcon.style.display = "block";
-        userImage.style.display = "none";
-    }
-});
+  let activeFilter = 'all';
+
+  searchInput.addEventListener('input', () => filterJobs());
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.type;
+      filterButtons.forEach(b => b.classList.remove('bg-brand', 'text-white'));
+      btn.classList.add('bg-brand', 'text-white');
+      filterJobs();
+    });
+  });
+
+  function filterJobs() {
+    const query = searchInput.value.toLowerCase();
+    jobCards.forEach(card => {
+      const title = card.dataset.title.toLowerCase();
+      const type = card.dataset.type;
+      const matchSearch = title.includes(query);
+      const matchType = activeFilter === 'all' || type === activeFilter;
+      card.style.display = matchSearch && matchType ? 'block' : 'none';
+    });
+  }
 </script>
 </body>
 </html>
