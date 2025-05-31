@@ -84,7 +84,7 @@
   <!-- Script -->
   <script>
     let jobs = [], currentPage = 1, currentFilter = "all", currentSearch = "";
-    const jobsPerPage = 3;
+    const jobsPerPage = 4;
 
     fetch('jobs.csv')
       .then(res => res.text())
@@ -119,46 +119,58 @@
       const container = document.getElementById("jobContainer");
       container.innerHTML = "";
 
-      const filtered = jobs.filter(job =>
-        (currentFilter === "all" || job.type === currentFilter) &&
-        job.title.toLowerCase().includes(currentSearch.toLowerCase())
-      );
+      const filtered = jobs.filter(job => {
+      const matchesFilter = currentFilter === "all" || job.type === currentFilter;
+      const searchLower = currentSearch.toLowerCase();
+      const matchesSearch =
+        job.title.toLowerCase().includes(searchLower) ||
+        job.organization.toLowerCase().includes(searchLower) ||
+        job.posted.toLowerCase().includes(searchLower) ||
+        job.type.toLowerCase().includes(searchLower);
+      return matchesFilter && matchesSearch;
+    });
 
       const paginated = filtered.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
-      paginated.forEach(job => {
-container.innerHTML += `
-  <div class="bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 mb-3">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      
-      <!-- Left: Logo & Info -->
-      <div class="flex items-start gap-3">
-        <img src="tra-logo.png" alt="logo" class="w-12 h-12 rounded-xl border border-gray-200 shadow-sm object-cover">
-        <div>
-          <h2 class="font-semibold text-base text-gray-800 leading-tight">${job.title}</h2>
-          <p class="text-xs text-gray-600 mt-0.5">${job.organization}</p>
-          <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-500">
-            <span class="flex items-center gap-1"><i class="fa fa-calendar text-blue-500 text-xs"></i>${job.posted}</span>
-            <span class="flex items-center gap-1"><i class="fa fa-clock text-yellow-500 text-xs"></i>Full Time</span>
-            <span class="bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded-full text-[10px]">${job.type}</span>
+paginated.forEach(job => {
+  // Preserve name with spaces and capitalization
+  const logoFile = `${job.organization.trim()}.jpg`;
+  const logoPath = `logos/${logoFile}`;
+
+  container.innerHTML += `
+    <div class="bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition duration-200 mb-2">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        
+        <!-- Left: Logo & Info -->
+        <div class="flex items-start gap-2">
+          <img src="${logoPath}" alt="${job.organization}"
+               onerror="this.onerror=null; this.src='logos/default.jpg';"
+               class="w-10 h-10 rounded-lg border border-gray-200 shadow-sm object-cover">
+          <div>
+            <h2 class="font-semibold text-sm text-gray-800 leading-tight">${job.title}</h2>
+            <p class="text-xs text-gray-600 mt-0.5">${job.organization}</p>
+            <div class="flex flex-wrap gap-1 mt-1 text-xs text-gray-500">
+              <span class="flex items-center gap-1"><i class="fa fa-calendar text-blue-500 text-xs"></i>${job.posted}</span>
+              <span class="flex items-center gap-1"><i class="fa fa-clock text-yellow-500 text-xs"></i>Full Time</span>
+              <span class="bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded-full text-[10px]">${job.type}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Right: Actions -->
-      <div class="flex items-center gap-1 flex-wrap md:flex-nowrap md:mt-0">
-        <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank"
-          class="text-green-600 hover:text-green-800 text-xs flex items-center gap-1 transition">
-          <i class="fab fa-whatsapp text-sm"></i> WhatsApp Channel
-        </a>
-        <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
-          class="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-full shadow-sm transition">
-          Apply
-        </a>
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-2 flex-wrap md:flex-nowrap md:mt-0">
+          <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank"
+            class="text-green-600 hover:text-green-800 text-xs flex items-center gap-1 transition">
+            <i class="fab fa-whatsapp text-lg"></i> WhatsApp Channel
+          </a>
+          <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
+            class="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-full shadow-sm transition">
+            Apply
+          </a>
+        </div>
       </div>
-    </div>
-  </div>`;
-      });
+    </div>`;
+});
 
       renderPagination(filtered.length);
     }
