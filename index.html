@@ -3,15 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Job Listings</title>
+  <title>Ajira Tz | Jobs</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 font-sans text-gray-800">
+
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-white shadow transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -67,129 +64,110 @@
 
   <!-- Filters -->
   <section class="max-w-5xl mx-auto px-4 mt-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <input type="text" id="searchInput" placeholder="Search job title..." class="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-blue-600">
-      <div class="flex gap-2">
-        <button data-type="all" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-blue-600 hover:bg-blue-500">All</button>
-        <button data-type="Government" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-blue-600 hover:bg-blue-50">Government</button>
-        <button data-type="Private" class="filter-btn px-4 py-2 rounded-lg text-sm font-semibold border border-blue-600 hover:bg-blue-50">Private</button>
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <input id="searchInput" type="text" placeholder="Search job title..."
+        class="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-blue-500">
+      <div class="flex gap-2 text-sm">
+        <button data-type="all" class="filter-btn px-3 py-1 border rounded">All</button>
+        <button data-type="Government" class="filter-btn px-3 py-1 border rounded">Government</button>
+        <button data-type="Private" class="filter-btn px-3 py-1 border rounded">Private</button>
       </div>
     </div>
   </section>
 
-  <!-- Job Listings -->
-  <main class="max-w-5xl mx-auto px-4 py-10">
+  <!-- Listings -->
+  <main class="max-w-5xl mx-auto px-4 py-8">
     <div id="jobContainer" class="space-y-4"></div>
-    <div id="pagination" class="mt-6 flex justify-center gap-2"></div>
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
   </main>
 
+  <!-- Script -->
   <script>
-    let jobs = [];
-    let currentPage = 1;
+    let jobs = [], currentPage = 1, currentFilter = "all", currentSearch = "";
     const jobsPerPage = 3;
-    let currentFilter = "all";
-    let currentSearch = "";
 
     fetch('jobs.csv')
       .then(res => res.text())
       .then(data => {
-        const lines = data.trim().split('\n').slice(1);
-        jobs = lines.map(line => {
+        jobs = data.trim().split('\n').slice(1).map(line => {
           const [title, organization, posted, type] = line.split(',');
           return { title, organization, posted, type };
         });
-        renderJobs();
-        setupFilters();
-        setupSearch();
+        setup();
       });
+
+    function setup() {
+      renderJobs();
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentFilter = btn.dataset.type;
+          currentPage = 1;
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+          btn.classList.add('bg-blue-600', 'text-white');
+          renderJobs();
+        });
+      });
+      document.getElementById("searchInput").addEventListener("input", e => {
+        currentSearch = e.target.value;
+        currentPage = 1;
+        renderJobs();
+      });
+      document.querySelector('[data-type="all"]').classList.add('bg-blue-600', 'text-white');
+    }
 
     function renderJobs() {
       const container = document.getElementById("jobContainer");
       container.innerHTML = "";
 
-      const filtered = jobs.filter(job => {
-        const matchType = currentFilter === "all" || job.type === currentFilter;
-        const matchSearch = job.title.toLowerCase().includes(currentSearch.toLowerCase());
-        return matchType && matchSearch;
-      });
+      const filtered = jobs.filter(job =>
+        (currentFilter === "all" || job.type === currentFilter) &&
+        job.title.toLowerCase().includes(currentSearch.toLowerCase())
+      );
 
-      const start = (currentPage - 1) * jobsPerPage;
-      const paginated = filtered.slice(start, start + jobsPerPage);
+      const paginated = filtered.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
       paginated.forEach(job => {
-        const article = document.createElement('article');
-        article.className = "job-card";
-        article.innerHTML = `
-          <div class="rounded-xl p-6 flex flex-col md:flex-row justify-between gap-6 bg-white shadow border hover:shadow-lg transition">
-            <div class="flex items-start md:items-center gap-4">
-              <img src="tra-logo.png" alt="${job.organization} Logo" class="w-16 h-16 object-cover rounded-xl border shadow-sm">
+        container.innerHTML += `
+          <div class="bg-white p-5 rounded-xl shadow flex flex-col md:flex-row justify-between gap-4">
+            <div class="flex gap-4">
+              <img src="tra-logo.png" alt="logo" class="w-14 h-14 rounded-xl border shadow">
               <div>
-                <h2 class="text-lg font-semibold text-gray-800">${job.title} at ${job.organization}</h2>
-                <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-4">
-                  <span><i class="fa fa-calendar text-gray-400 mr-1"></i>${job.posted}</span>
-                  <span><i class="fa fa-clock text-gray-400 mr-1"></i>Full Time</span>
-                  <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">${job.type}</span>
+                <h2 class="font-semibold text-lg">${job.title} at ${job.organization}</h2>
+                <div class="text-sm text-gray-500 mt-1 flex flex-wrap gap-3">
+                  <span><i class="fa fa-calendar mr-1 text-gray-400"></i>${job.posted}</span>
+                  <span><i class="fa fa-clock mr-1 text-gray-400"></i>Full Time</span>
+                  <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">${job.type}</span>
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-3 flex-wrap">
-          <button class="text-blue-600 text-sm hover:underline flex items-center gap-2"><i class="fa fa-share"></i> Share</button>
-              <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank" class="text-green-500 text-sm hover:underline flex items-center gap-2">
+            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap">
+              <button class="text-blue-600 text-sm hover:underline flex items-center gap-1">
+                <i class="fa fa-share"></i> Share
+              </button>
+              <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank"
+                class="text-green-600 text-sm hover:underline flex items-center gap-1">
                 <i class="fab fa-whatsapp"></i> WhatsApp
               </a>
-              <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}" class="ml-auto md:ml-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition">Apply</a>
+              <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
+                class="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-full shadow">
+                Apply
+              </a>
             </div>
           </div>`;
-        container.appendChild(article);
       });
 
       renderPagination(filtered.length);
     }
 
     function renderPagination(total) {
-      const totalPages = Math.ceil(total / jobsPerPage);
       const pagination = document.getElementById("pagination");
       pagination.innerHTML = "";
-
+      const totalPages = Math.ceil(total / jobsPerPage);
       for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        btn.className = `px-3 py-1 rounded ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white border text-blue-600'} hover:bg-blue-100`;
-        btn.addEventListener('click', () => {
-          currentPage = i;
-          renderJobs();
-        });
-        pagination.appendChild(btn);
+        pagination.innerHTML += `<button class="px-3 py-1 rounded ${i === currentPage ? 'bg-blue-600 text-white' : 'border'}" onclick="currentPage=${i};renderJobs();">${i}</button>`;
       }
     }
-
-    function setupFilters() {
-      const buttons = document.querySelectorAll('.filter-btn');
-      buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          currentFilter = btn.dataset.type;
-          currentPage = 1;
-          buttons.forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
-          buttons.forEach(b => b.classList.add('bg-white', 'text-blue-600'));
-          btn.classList.add('bg-blue-600', 'text-white');
-          btn.classList.remove('bg-white', 'text-blue-600');
-          renderJobs();
-        });
-      });
-
-      // Set default selected
-      document.querySelector('.filter-btn[data-type="all"]').classList.add('bg-blue-600', 'text-white');
-    }
-
-    function setupSearch() {
-      document.getElementById("searchInput").addEventListener('input', (e) => {
-        currentSearch = e.target.value;
-        currentPage = 1;
-        renderJobs();
-      });
-    }
   </script>
-
     <script>
     const menuToggle = document.getElementById("menuToggle");
     const navMenu = document.getElementById("navMenu");

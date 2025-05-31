@@ -3,82 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Job Listings</title>
+    <title>Ajira Tz | Job Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-800">
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-white shadow transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <a href="index.html" class="text-2xl font-bold text-blue-600">
-      <i class="fas fa-paper-plane"></i> Ajira Tz
-    </a>
-      <button id="menuToggle" class="lg:hidden flex flex-col justify-center items-center w-8 h-8 relative z-50">
-        <span class="block w-6 h-0.5 bg-gray-800 transition-transform duration-300" id="line1"></span>
-        <span class="block w-6 h-0.5 bg-gray-800 mt-1 transition-opacity duration-300" id="line2"></span>
-        <span class="block w-6 h-0.5 bg-gray-800 mt-1 transition-transform duration-300" id="line3"></span>
-      </button>
+  <header class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="index.html" class="flex items-center text-2xl font-bold text-blue-700 hover:scale-105 transition-transform">
+        <i class="fas fa-paper-plane mr-2 animate-bounce"></i> Ajira Tz
+      </a>
+      <nav class="hidden lg:flex gap-6 text-sm font-medium text-gray-700">
+        <a href="#" class="hover:text-blue-600 transition">Home</a>
+        <a href="#" class="hover:text-blue-600 transition">Categories</a>
+        <a href="#" class="hover:text-blue-600 transition">Contact</a>
+      </nav>
     </div>
-    
-    <nav id="navMenu" class="overflow-hidden max-h-0 transition-all duration-300 lg:max-h-none lg:overflow-visible lg:block lg:pb-4 lg:hidden">
-      <ul class="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4 px-4 pb-4 text-center text-gray-700">
-        <li><a href="#" class="hover:text-blue-600">Home</a></li>
-        <li><a href="#" class="hover:text-blue-600">Categories</a></li>
-        <li><a href="#" class="hover:text-blue-600">Contact</a></li>
-      </ul>
-    </nav>
   </header>
-<main class="max-w-3xl mx-auto bg-white p-8 mt-6 rounded-2xl shadow-xl">
-  <h1 id="jobTitle" class="text-3xl font-bold mb-4 text-gray-800">Loading...</h1>
 
-  <div class="text-sm text-gray-500 mb-6 flex flex-wrap gap-4 items-center">
-    <span id="jobOrg" class="bg-gray-100 px-2 py-1 rounded-full"></span>
-    <span id="jobPosted" class="bg-gray-100 px-2 py-1 rounded-full"></span>
-    <span id="jobType" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold uppercase"></span>
-  </div>
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto mt-10 px-6">
+    <div class="bg-white shadow-md rounded-2xl p-8">
+      <h1 id="jobTitle" class="text-3xl font-bold mb-4 text-gray-900">Loading...</h1>
 
-  <div class="space-y-6 text-gray-700 leading-relaxed">
-    <section>
-      <h2 class="font-semibold text-lg text-blue-600">Experience Required</h2>
-      <p id="jobExperience" class="ml-2 text-sm mt-1"></p>
-    </section>
+      <div class="flex flex-wrap gap-3 text-sm text-gray-600 mb-6">
+        <span id="jobOrg" class="bg-gray-100 px-3 py-1 rounded-full"></span>
+        <span id="jobPosted" class="bg-gray-100 px-3 py-1 rounded-full"></span>
+        <span id="jobType" class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full uppercase font-semibold tracking-wide"></span>
+      </div>
 
-    <section>
-      <h2 class="font-semibold text-lg text-blue-600">Qualifications</h2>
-      <p id="jobQualifications" class="ml-2 text-sm mt-1"></p>
-    </section>
+      <div class="space-y-6 text-justify leading-relaxed">
+        <section>
+          <h2 class="text-xl font-semibold text-blue-600 mb-1">Experience Required</h2>
+          <p id="jobExperience" class="pl-2 text-gray-700"></p>
+        </section>
 
-    <section>
-      <h2 class="font-semibold text-lg text-blue-600">Job Description</h2>
-      <p id="jobDescription" class="ml-2 text-sm whitespace-pre-line mt-1"></p>
-    </section>
+        <hr>
 
-    <section>
-      <h2 class="font-semibold text-lg text-blue-600">How to Apply</h2>
-      <p class="ml-2 text-sm text-gray-600 mt-1">Please follow the application instructions provided by the organization. Check their official website or contact them directly.</p>
-    </section>
-  </div>
+        <section>
+          <h2 class="text-xl font-semibold text-blue-600 mb-1">Qualifications</h2>
+          <p id="jobQualifications" class="pl-2 text-gray-700"></p>
+        </section>
 
-  <!-- Apply Button -->
-  <div class="mt-10 text-center">
-    <a href="#" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-3 rounded-full transition">
-      <i class="fas fa-paper-plane"></i>
-      Apply Now
-    </a>
-  </div>
+        <hr>
 
-  <div class="mt-6 text-center">
-    <a href="index.html" class="text-blue-600 hover:underline text-sm inline-flex items-center gap-1">
-      <i class="fas fa-arrow-left"></i> Back to Listings
-    </a>
-  </div>
-</main>
+        <section>
+          <h2 class="text-xl font-semibold text-blue-600 mb-1">Job Description</h2>
+          <p id="jobDescription" class="pl-2 text-gray-700 whitespace-pre-line"></p>
+        </section>
 
+        <hr>
+
+        <section>
+          <h2 class="text-xl font-semibold text-blue-600 mb-1">How to Apply</h2>
+          <p class="pl-2 text-gray-600">Please follow the application instructions provided by the organization. Visit their official website or contact them directly.</p>
+        </section>
+      </div>
+
+      <!-- Apply Button -->
+      <div class="mt-10 flex justify-center">
+        <a href="#" class="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-full font-semibold text-sm shadow transition">
+          <i class="fas fa-paper-plane"></i> Apply Now
+        </a>
+      </div>
+
+      <div class="mt-6 text-center">
+        <a href="index.html" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
+          <i class="fas fa-arrow-left"></i> Back to Listings
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Job Loader Script -->
   <script>
     const params = new URLSearchParams(window.location.search);
     const titleParam = params.get("title");
@@ -92,7 +95,7 @@
         const entries = lines.slice(1).map(line => {
           const values = line.split(",");
           const job = {};
-          headers.forEach((h, i) => job[h.trim()] = values[i] ? values[i].trim() : '');
+          headers.forEach((h, i) => job[h.trim()] = values[i]?.trim() || '');
           return job;
         });
 
@@ -108,9 +111,11 @@
           document.getElementById("jobDescription").textContent = job.description || "No description provided.";
         } else {
           document.querySelector("main").innerHTML = `
-            <h1 class="text-xl font-bold text-red-600 mb-4">Job not found</h1>
-            <p class="mb-4 text-gray-600">This job listing could not be found. Please return to the listings page.</p>
-            <a href="index.html" class="text-blue-600 hover:underline text-sm">&larr; Back to Listings</a>
+            <div class="text-center p-8 bg-white rounded-2xl shadow">
+              <h1 class="text-2xl font-bold text-red-600">Job not found</h1>
+              <p class="text-gray-600 my-4">This job listing could not be found. Please return to the listings page.</p>
+              <a href="index.html" class="text-blue-600 hover:underline text-sm">&larr; Back to Listings</a>
+            </div>
           `;
         }
       })
@@ -118,34 +123,6 @@
         console.error("Error loading job data:", err);
         document.querySelector("main").innerHTML = `<p class="text-red-600">Failed to load job details.</p>`;
       });
-  </script>
-
-      <script>
-    const menuToggle = document.getElementById("menuToggle");
-    const navMenu = document.getElementById("navMenu");
-    const line1 = document.getElementById("line1");
-    const line2 = document.getElementById("line2");
-    const line3 = document.getElementById("line3");
-
-    let menuOpen = false;
-
-    menuToggle.addEventListener("click", () => {
-      menuOpen = !menuOpen;
-
-      // Animate menu button
-      line1.classList.toggle("rotate-45", menuOpen);
-      line1.classList.toggle("translate-y-[10px]", menuOpen);
-      line2.classList.toggle("opacity-0", menuOpen);
-      line3.classList.toggle("-rotate-45", menuOpen);
-      line3.classList.toggle("-translate-y-[10px]", menuOpen);
-
-      // Animate nav menu
-      if (menuOpen) {
-        navMenu.style.maxHeight = navMenu.scrollHeight + "px";
-      } else {
-        navMenu.style.maxHeight = "0px";
-      }
-    });
   </script>
 </body>
 </html>
