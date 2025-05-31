@@ -74,21 +74,15 @@
       </div>
 <div class="relative flex items-center px-3 py-0 border border-gray-300 rounded w-auto max-w-full gap-2">
   <i class="fa fa-search text-gray-500 text-sm"></i>
-  <input
-    id="searchInput"
-    type="text"
-    placeholder="Search..."
-    class="px-2 py-1 text-base focus:outline-none bg-transparent w-[140px] sm:w-[180px] md:w-[220px]"
-  />
+  <input id="searchInput" type="text" placeholder="Search..." class="px-2 py-1 text-base focus:outline-none bg-transparent w-[140px] sm:w-[180px] md:w-[220px]"/>
 </div>
-
     </div>
   </section>
 
   <!-- Listings -->
   <main class="max-w-5xl mx-auto px-4 py-4">
     <div id="jobContainer" class="space-y-4"></div>
-    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
+    <div id="pagination" class="flex justify-center gap-4 mt-3"></div>
   </main>
 
   <!-- Script -->
@@ -157,8 +151,9 @@ paginated.forEach(job => {
                onerror="this.onerror=null; this.src='logos/default.jpg';"
                class="w-10 h-10 rounded-lg border border-gray-200 shadow-sm object-cover">
           <div>
-            <h2 class="font-semibold text-sm text-gray-800 leading-tight">${job.title}</h2>
-            <p class="text-xs text-gray-600 mt-0.5">${job.organization}</p>
+            <h2 class="font-semibold text-sm text-gray-800 leading-tight inline">${job.title}</h2>
+            <span class="mx-2 text-gray-400 text-xs align-middle">|</span>
+            <p class="text-xs text-gray-600 inline mt-0.5 align-middle">${job.organization}</p>
             <div class="flex flex-wrap gap-1 mt-1 text-xs text-gray-500">
               <span class="flex items-center gap-1"><i class="fa fa-calendar text-gray-500 text-xs"></i>${job.posted}</span>
               <span class="flex items-center gap-1"><i class="fa fa-clock text-yellow-500 text-xs"></i>Full Time</span>
@@ -174,7 +169,8 @@ paginated.forEach(job => {
             <i class="fab fa-whatsapp text-lg"></i> WhatsApp Channel
           </a>
           <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
-            class="ml-auto bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded-full shadow-sm transition">
+            class="ml-auto flex justify-center items-center bg-gray-600 hover:bg-green-700 text-white text-xs px-4 py-1.5 rounded shadow-sm transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+            style="min-width: 70px; text-align: center;">
             Apply
           </a>
         </div>
