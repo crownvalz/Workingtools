@@ -78,8 +78,8 @@
   </section>
 
   <!-- Listings -->
-  <main class="max-w-5xl mx-auto px-4 py-4 mt-2">
-    <h1 class="text-xl md:text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-start gap-3">
+  <main class="max-w-5xl mx-auto px-4 py-4 mt-1">
+    <h1 class="text-xl md:text-xl font-semibold text-gray-800 mb-2 text-center flex items-center justify-start gap-2">
       <i class="fa fa-briefcase text-green-700"></i>
       Latest Jobs
     </h1>
@@ -145,7 +145,7 @@ paginated.forEach(job => {
 
   container.innerHTML += `
     <div class="bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition duration-200 mb-2">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
         
         <!-- Left: Logo & Info -->
         <div class="flex items-start gap-2">
@@ -168,7 +168,7 @@ paginated.forEach(job => {
         <div class="flex items-center gap-2 flex-wrap md:flex-nowrap md:mt-0">
           <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank"
             class="text-green-600 hover:text-green-800 text-xs flex items-center gap-1 transition">
-            <i class="fab fa-whatsapp text-lg"></i> WhatsApp Channel
+            <i class="fab fa-whatsapp text-lg"></i> WhatsApp
           </a>
           <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
             class="ml-auto flex justify-center items-center bg-gray-600 hover:bg-green-700 text-white text-xs px-4 py-1.5 rounded shadow-sm transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
