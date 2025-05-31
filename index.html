@@ -12,9 +12,9 @@
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-white shadow transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <a href="index.html" class="text-2xl font-bold text-blue-600 flex items-center gap-2 group transition-transform duration-300 hover:scale-105">
+      <a href="index.html" class="text-2xl font-bold text-green-800 flex items-center gap-2 group transition-transform duration-300 hover:scale-105">
         <span class="inline-block animate-bounce"><i class="fas fa-paper-plane"></i></span>
-        <span class="tracking-tight group-hover:text-blue-800 transition-colors duration-300">Ajira Tz</span>
+        <span class="tracking-tight group-hover:text-green-800 transition-colors duration-300">Ajira Tz</span>
       </a>
       <button id="menuToggle" aria-label="Open menu" class="lg:hidden flex flex-col justify-center items-center w-10 h-10 relative z-50 group focus:outline-none">
         <span class="block w-7 h-0.5 bg-gray-800 rounded transition-all duration-300 origin-center" id="line1"></span>
@@ -25,24 +25,24 @@
     <nav id="navMenu" class="overflow-hidden max-h-0 transition-all duration-500 ease-in-out lg:max-h-none lg:overflow-visible lg:block lg:pb-4 lg:hidden bg-white shadow-lg lg:shadow-none rounded-b-xl">
       <ul class="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4 px-4 pb-4 text-center text-gray-700">
         <li>
-          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-blue-50 hover:text-blue-600 group">
+          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-gray-50 hover:text-gray-600 group">
             Home
-            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-1/2"></span>
-            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
           </a>
         </li>
         <li>
-          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-blue-50 hover:text-blue-600 group">
+          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-gray-50 hover:text-gray-600 group">
             Categories
-            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-1/2"></span>
-            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
           </a>
         </li>
         <li>
-          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-blue-50 hover:text-blue-600 group">
+          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-gray-50 hover:text-gray-600 group">
             Contact
-            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-1/2"></span>
-            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
           </a>
         </li>
       </ul>
@@ -65,18 +65,19 @@
   <!-- Filters -->
   <section class="max-w-5xl mx-auto px-4 mt-8">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <input id="searchInput" type="text" placeholder="Search job title..."
-        class="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-blue-500">
       <div class="flex gap-2 text-sm">
         <button data-type="all" class="filter-btn px-3 py-1 border rounded">All</button>
         <button data-type="Government" class="filter-btn px-3 py-1 border rounded">Government</button>
         <button data-type="Private" class="filter-btn px-3 py-1 border rounded">Private</button>
+              <input id="searchInput" type="text" placeholder="Search job title..."
+        class="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-gray-500">
+
       </div>
     </div>
   </section>
 
   <!-- Listings -->
-  <main class="max-w-5xl mx-auto px-4 py-8">
+  <main class="max-w-5xl mx-auto px-4 py-4">
     <div id="jobContainer" class="space-y-4"></div>
     <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
   </main>
@@ -102,8 +103,8 @@
         btn.addEventListener('click', () => {
           currentFilter = btn.dataset.type;
           currentPage = 1;
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
-          btn.classList.add('bg-blue-600', 'text-white');
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-gray-600', 'text-white'));
+          btn.classList.add('bg-gray-600', 'text-white');
           renderJobs();
         });
       });
@@ -112,7 +113,7 @@
         currentPage = 1;
         renderJobs();
       });
-      document.querySelector('[data-type="all"]').classList.add('bg-blue-600', 'text-white');
+      document.querySelector('[data-type="all"]').classList.add('bg-gray-600', 'text-white');
     }
 
     function renderJobs() {
@@ -150,9 +151,9 @@ paginated.forEach(job => {
             <h2 class="font-semibold text-sm text-gray-800 leading-tight">${job.title}</h2>
             <p class="text-xs text-gray-600 mt-0.5">${job.organization}</p>
             <div class="flex flex-wrap gap-1 mt-1 text-xs text-gray-500">
-              <span class="flex items-center gap-1"><i class="fa fa-calendar text-blue-500 text-xs"></i>${job.posted}</span>
+              <span class="flex items-center gap-1"><i class="fa fa-calendar text-gray-500 text-xs"></i>${job.posted}</span>
               <span class="flex items-center gap-1"><i class="fa fa-clock text-yellow-500 text-xs"></i>Full Time</span>
-              <span class="bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded-full text-[10px]">${job.type}</span>
+              <span class="bg-gray-100 text-gray-700 font-medium px-2 py-0.5 rounded-full text-[10px]">${job.type}</span>
             </div>
           </div>
         </div>
@@ -164,7 +165,7 @@ paginated.forEach(job => {
             <i class="fab fa-whatsapp text-lg"></i> WhatsApp Channel
           </a>
           <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
-            class="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-full shadow-sm transition">
+            class="ml-auto bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded-full shadow-sm transition">
             Apply
           </a>
         </div>
@@ -180,7 +181,7 @@ paginated.forEach(job => {
       pagination.innerHTML = "";
       const totalPages = Math.ceil(total / jobsPerPage);
       for (let i = 1; i <= totalPages; i++) {
-        pagination.innerHTML += `<button class="px-3 py-1 rounded ${i === currentPage ? 'bg-blue-600 text-white' : 'border'}" onclick="currentPage=${i};renderJobs();">${i}</button>`;
+        pagination.innerHTML += `<button class="px-3 py-1 rounded ${i === currentPage ? 'bg-gray-600 text-white' : 'border'}" onclick="currentPage=${i};renderJobs();">${i}</button>`;
       }
     }
   </script>
