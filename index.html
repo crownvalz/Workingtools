@@ -69,6 +69,7 @@
         <button data-type="all" class="filter-btn px-3 py-1 border rounded">All</button>
         <button data-type="Government" class="filter-btn px-3 py-1 border rounded">Government</button>
         <button data-type="Private" class="filter-btn px-3 py-1 border rounded">Private</button>
+        <button data-type="NGO" class="filter-btn px-3 py-1 border rounded">NGO</button>
       </div>
       <div class="relative flex items-center px-3 py-0 border border-gray-300 rounded w-auto max-w-full gap-2">
         <i class="fa fa-search text-gray-500 text-sm"></i>
@@ -79,7 +80,7 @@
 
   <!-- Listings -->
   <main class="max-w-5xl mx-auto px-4 py-4 mt-1">
-    <h1 class="text-xl md:text-xl font-semibold text-gray-800 mb-2 text-center flex items-center justify-start gap-2">
+    <h1 class="text-sm md:text-sm font-semibold text-gray-800 mb-4 text-center flex items-center justify-start gap-2">
       <i class="fa fa-briefcase text-green-700"></i>
       Latest Jobs
     </h1>
@@ -151,7 +152,7 @@ paginated.forEach(job => {
         <div class="flex items-start gap-2">
           <img src="${logoPath}" alt="${job.organization}"
                onerror="this.onerror=null; this.src='logos/default.jpg';"
-               class="w-10 h-10 rounded-lg border border-gray-200 shadow-sm object-cover">
+               class="w-10 h-10 rounded-lg object-cover">
           <div>
             <h2 class="font-semibold text-lg text-gray-800 leading-tight inline">${job.title}</h2>
             <span class="mx-2 text-gray-400 text-xs align-middle">|</span>
