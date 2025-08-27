@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Dynamic Document Upload</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-6 w-full max-w-4xl">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200">📄 Smart Document Upload</h2>
+      <!-- Dark Mode Toggle -->
+      <button id="toggleDark" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:scale-110 transition">
+        🌙
+      </button>
+    </div>
+
+    <!-- Upload Form -->
+    <form id="uploadForm" class="space-y-6">
+      <!-- Dynamic Fields -->
+      <div id="uploadContainer" class="space-y-4"></div>
+
+      <!-- Add Field -->
+      <div class="flex justify-center">
+        <button type="button" id="addFieldBtn" 
+          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+          ➕ Add Document
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 hidden" id="progressWrapper">
+        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%" id="progressBar"></div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" 
+        class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition text-lg font-semibold shadow">
+        🚀 Generate Smart PDF
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+    let fieldCount = 0;
+
+    const docTypes = [
+      { value: "passport", label: "Passport Photo (Passport Size)" },
+      { value: "id", label: "ID Image" },
+      { value: "other", label: "Other Document/Image" }
+    ];
+
+    // Add Upload Field
+    function addUploadField() {
+      fieldCount++;
+      const container = document.getElementById("uploadContainer");
+
+      const fieldDiv = document.createElement("div");
+      fieldDiv.className = "border rounded-xl p-4 bg-gray-50 dark:bg-gray-800 relative group shadow";
+      fieldDiv.id = `field-${fieldCount}`;
+
+      fieldDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <label class="font-medium text-gray-700 dark:text-gray-200">Document ${fieldCount}</label>
+          <div class="flex gap-2">
+            <button type="button" onclick="moveUp(${fieldCount})" class="text-gray-500 hover:text-blue-600">⬆</button>
+            <button type="button" onclick="moveDown(${fieldCount})" class="text-gray-500 hover:text-blue-600">⬇</button>
+            <button type="button" onclick="removeField(${fieldCount})" 
+              class="text-red-500 hover:text-red-700">✖</button>
+          </div>
+        </div>
+        <select id="type-${fieldCount}" class="w-full mb-3 p-2 border rounded dark:bg-gray-700 dark:text-gray-200">
+          ${docTypes.map(d => `<option value="${d.value}">${d.label}</option>`).join("")}
+        </select>
+        <input type="file" id="file-${fieldCount}" accept="image/*,.pdf" class="hidden" required>
+        <div id="drop-${fieldCount}" 
+          class="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center cursor-pointer hover:border-blue-400 transition bg-white dark:bg-gray-700">
+          <span class="text-gray-500 dark:text-gray-300">📂 Click or Drag & Drop to Upload</span>
+        </div>
+        <img id="preview-${fieldCount}" class="mt-3 hidden w-32 h-32 object-cover rounded-lg border shadow">
+        <div id="filename-${fieldCount}" class="mt-2 hidden text-sm text-blue-600"></div>
+      `;
+
+      container.appendChild(fieldDiv);
+
+      // File upload + preview
+      const dropZone = document.getElementById(`drop-${fieldCount}`);
+      const fileInput = document.getElementById(`file-${fieldCount}`);
+
+      dropZone.addEventListener("click", () => fileInput.click());
+
+      dropZone.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropZone.classList.add("border-blue-500", "bg-blue-50");
+      });
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("border-blue-500", "bg-blue-50");
+      });
+      dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        fileInput.files = e.dataTransfer.files;
+        handlePreview(fileInput.files[0], fieldCount);
+      });
+
+      fileInput.addEventListener("change", e => handlePreview(e.target.files[0], fieldCount));
+    }
+
+    function handlePreview(file, id) {
+      if (!file) return;
+      if (file.type.includes("image")) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const preview = document.getElementById(`preview-${id}`);
+          preview.src = ev.target.result;
+          preview.classList.remove("hidden");
+          document.getElementById(`filename-${id}`).classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const fname = document.getElementById(`filename-${id}`);
+        fname.textContent = "📄 " + file.name;
+        fname.classList.remove("hidden");
+        document.getElementById(`preview-${id}`).classList.add("hidden");
+      }
+    }
+
+    // Remove field
+    function removeField(id) {
+      const field = document.getElementById(`field-${id}`);
+      if (field) field.remove();
+    }
+
+    // Reorder fields
+    function moveUp(id) {
+      const field = document.getElementById(`field-${id}`);
+      if (field && field.previousElementSibling) {
+        field.parentNode.insertBefore(field, field.previousElementSibling);
+      }
+    }
+    function moveDown(id) {
+      const field = document.getElementById(`field-${id}`);
+      if (field && field.nextElementSibling) {
+        field.parentNode.insertBefore(field.nextElementSibling, field);
+      }
+    }
+
+    // First field
+    addUploadField();
+    document.getElementById("addFieldBtn").addEventListener("click", addUploadField);
+
+    // Generate PDF
+    document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const pdf = new jsPDF();
+      pdf.setFontSize(16);
+      pdf.text("Uploaded Documents", 10, 15);
+
+      let y = 30;
+      const fields = [...document.getElementById("uploadContainer").children];
+      let progress = 0;
+      const progressWrapper = document.getElementById("progressWrapper");
+      const progressBar = document.getElementById("progressBar");
+      progressWrapper.classList.remove("hidden");
+
+      for (const field of fields) {
+        const typeEl = field.querySelector("select");
+        const fileEl = field.querySelector("input[type=file]");
+
+        if (!fileEl || fileEl.files.length === 0) continue;
+        const file = fileEl.files[0];
+
+        pdf.setFontSize(12);
+        pdf.text(`${typeEl.options[typeEl.selectedIndex].text}:`, 10, y);
+        y += 5;
+
+        if (file.type.includes("image")) {
+          const img = await toBase64(file);
+          if (typeEl.value === "passport") {
+            pdf.addImage(img, "JPEG", 10, y, 35, 45);
+            y += 55;
+          } else {
+            pdf.addImage(img, "JPEG", 10, y, 80, 60);
+            y += 70;
+          }
+        } else {
+          pdf.text(`Attached file: ${file.name}`, 10, y);
+          y += 15;
+        }
+
+        progress += (100 / fields.length);
+        progressBar.style.width = progress + "%";
+
+        if (y > 260) {
+          pdf.addPage();
+          y = 20;
+        }
+      }
+
+      pdf.save("uploaded-documents.pdf");
+      progressWrapper.classList.add("hidden");
+    });
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Dark Mode Toggle
+    document.getElementById("toggleDark").addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+    });
+  </script>
+</body>
+</html>
