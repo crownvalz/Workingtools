@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Dynamic Document Upload</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+  <style>
+    /* Cropper container should be responsive and max height */
+    #cropperImage {
+      max-width: 100%;
+      max-height: 60vh;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500 min-h-screen flex items-center justify-center">
 
@@ -65,9 +75,26 @@
     </div>
   </div>
 
+  <!-- Cropper Modal -->
+  <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-60">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-4 w-11/12 max-w-3xl max-h-[80vh] flex flex-col">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 text-center">Crop Image</h3>
+      <div class="flex-1 overflow-auto">
+        <img id="cropperImage" src="" alt="Cropper Image" />
+      </div>
+      <div class="mt-4 flex justify-end gap-4">
+        <button id="cancelCropBtn" type="button" class="px-5 py-2 rounded bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition">Cancel</button>
+        <button id="applyCropBtn" type="button" class="px-5 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition">Apply Crop</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script>
     const { jsPDF } = window.jspdf;
     let fieldCount = 0;
+    let cropper = null;
+    let currentCropFieldId = null;
 
     const docTypes = [
       { value: "passport", label: "Passport Photo (Passport Size)" },
@@ -107,8 +134,11 @@
           class="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center cursor-pointer hover:border-blue-400 transition bg-white dark:bg-gray-700">
           <span class="text-gray-500 dark:text-gray-300">📂 Click or Drag & Drop to Upload</span>
         </div>
-        <img id="preview-${fieldCount}" class="mt-3 hidden w-32 h-32 object-cover rounded-lg border shadow">
-        <div id="filename-${fieldCount}" class="mt-2 hidden text-sm text-blue-600"></div>
+        <div class="mt-3 flex items-center gap-3">
+          <img id="preview-${fieldCount}" class="hidden w-32 h-32 object-cover rounded-lg border shadow" alt="Preview"/>
+          <button type="button" id="cropBtn-${fieldCount}" class="hidden px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition text-sm font-semibold shadow">✂️ Crop</button>
+        </div>
+        <div id="filename-${fieldCount}" class="mt-2 hidden text-sm text-blue-600 break-all"></div>
       `;
 
       container.appendChild(fieldDiv);
@@ -116,6 +146,9 @@
       // File upload + preview
       const dropZone = document.getElementById(`drop-${fieldCount}`);
       const fileInput = document.getElementById(`file-${fieldCount}`);
+      const preview = document.getElementById(`preview-${fieldCount}`);
+      const filenameDiv = document.getElementById(`filename-${fieldCount}`);
+      const cropBtn = document.getElementById(`cropBtn-${fieldCount}`);
 
       dropZone.addEventListener("click", () => fileInput.click());
 
@@ -133,31 +166,49 @@
       });
 
       fileInput.addEventListener("change", e => handlePreview(e.target.files[0], fieldCount));
+
+      // Crop button event
+      cropBtn.addEventListener("click", () => {
+        openCropModal(fieldCount);
+      });
     }
+
+    // Store cropped data URLs per field
+    const croppedImages = {};
 
     function handlePreview(file, id) {
       if (!file) return;
+      const preview = document.getElementById(`preview-${id}`);
+      const filenameDiv = document.getElementById(`filename-${id}`);
+      const cropBtn = document.getElementById(`cropBtn-${id}`);
+
+      // Clear any previous cropped image for this field because new file loaded
+      delete croppedImages[id];
+
       if (file.type.includes("image")) {
         const reader = new FileReader();
         reader.onload = ev => {
-          const preview = document.getElementById(`preview-${id}`);
           preview.src = ev.target.result;
           preview.classList.remove("hidden");
-          document.getElementById(`filename-${id}`).classList.add("hidden");
+          filenameDiv.classList.add("hidden");
+          cropBtn.classList.remove("hidden");
         };
         reader.readAsDataURL(file);
       } else {
-        const fname = document.getElementById(`filename-${id}`);
-        fname.textContent = "📄 " + file.name;
-        fname.classList.remove("hidden");
-        document.getElementById(`preview-${id}`).classList.add("hidden");
+        filenameDiv.textContent = "📄 " + file.name;
+        filenameDiv.classList.remove("hidden");
+        preview.classList.add("hidden");
+        cropBtn.classList.add("hidden");
       }
     }
 
     // Remove field
     function removeField(id) {
       const field = document.getElementById(`field-${id}`);
-      if (field) field.remove();
+      if (field) {
+        field.remove();
+        delete croppedImages[id];
+      }
     }
 
     // Reorder fields
@@ -173,8 +224,6 @@
         field.parentNode.insertBefore(field.nextElementSibling, field);
       }
     }
-
-    // Page starts empty: do not add initial field
 
     // Add buttons event listeners
     document.getElementById("addPassportBtn").addEventListener("click", () => addUploadField("passport"));
@@ -226,18 +275,25 @@
 
         if (!fileEl || fileEl.files.length === 0) continue;
         const file = fileEl.files[0];
+        const id = parseInt(field.id.split("-")[1]);
 
         pdf.setFontSize(12);
         pdf.text(`${typeEl.options[typeEl.selectedIndex].text}:`, 10, y);
         y += 5;
 
         if (file.type.includes("image")) {
-          const img = await toBase64(file);
+          // Use cropped image if exists, else original
+          let imgDataUrl;
+          if (croppedImages[id]) {
+            imgDataUrl = croppedImages[id];
+          } else {
+            imgDataUrl = await toBase64(file);
+          }
           if (typeEl.value === "passport") {
-            pdf.addImage(img, "JPEG", 10, y, 35, 45);
+            pdf.addImage(imgDataUrl, "JPEG", 10, y, 35, 45);
             y += 55;
           } else {
-            pdf.addImage(img, "JPEG", 10, y, 80, 60);
+            pdf.addImage(imgDataUrl, "JPEG", 10, y, 80, 60);
             y += 70;
           }
         } else {
@@ -270,6 +326,66 @@
     // Dark Mode Toggle
     document.getElementById("toggleDark").addEventListener("click", () => {
       document.documentElement.classList.toggle("dark");
+    });
+
+    // CropperJS integration
+    const cropModal = document.getElementById("cropModal");
+    const cropperImage = document.getElementById("cropperImage");
+    const cancelCropBtn = document.getElementById("cancelCropBtn");
+    const applyCropBtn = document.getElementById("applyCropBtn");
+
+    function openCropModal(fieldId) {
+      currentCropFieldId = fieldId;
+      const previewImg = document.getElementById(`preview-${fieldId}`);
+      if (!previewImg || previewImg.classList.contains("hidden")) return;
+
+      cropperImage.src = previewImg.src;
+      cropModal.classList.remove("hidden");
+
+      // Wait a tick for image to load before initializing cropper
+      setTimeout(() => {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        cropper = new Cropper(cropperImage, {
+          viewMode: 1,
+          aspectRatio: NaN,
+          autoCropArea: 1,
+          responsive: true,
+          background: false,
+        });
+      }, 100);
+    }
+
+    cancelCropBtn.addEventListener("click", () => {
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
+      cropModal.classList.add("hidden");
+      currentCropFieldId = null;
+      cropperImage.src = "";
+    });
+
+    applyCropBtn.addEventListener("click", () => {
+      if (!cropper || currentCropFieldId === null) return;
+      const canvas = cropper.getCroppedCanvas();
+      if (canvas) {
+        const croppedDataUrl = canvas.toDataURL("image/jpeg");
+        croppedImages[currentCropFieldId] = croppedDataUrl;
+
+        // Update preview image
+        const previewImg = document.getElementById(`preview-${currentCropFieldId}`);
+        previewImg.src = croppedDataUrl;
+
+        // Clean up and close modal
+        cropper.destroy();
+        cropper = null;
+        cropModal.classList.add("hidden");
+        currentCropFieldId = null;
+        cropperImage.src = "";
+      }
     });
   </script>
 </body>
