@@ -15,53 +15,90 @@
       display: block;
       margin: 0 auto;
     }
+    /* Increase the size of ID previews */
+    .id-preview {
+      width: 7.5rem !important;
+      height: 7.5rem !important;
+      min-width: 7.5rem !important;
+      min-height: 7.5rem !important;
+      max-width: 10rem;
+      max-height: 10rem;
+    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-tr from-blue-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500 min-h-screen flex flex-col">
 
-  <div class="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-6 w-full max-w-4xl">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200">📄 Smart Document Upload</h2>
+  <!-- Responsive Navigation Bar -->
+  <nav class="w-full z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-2 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-3xl">🧠</span>
+        <span class="font-extrabold text-xl md:text-2xl text-blue-700 dark:text-purple-300 tracking-tight">MonoDocs</span>
+      </div>
+      <div class="hidden md:flex gap-6 items-center">
+        <a href="#" class="text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Home</a>
+        <a href="#" class="text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Features</a>
+        <a href="#" class="text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Help</a>
+      </div>
+      <!-- Mobile menu toggle (hidden for now) -->
+      <div class="md:hidden">
+        <button id="mobileMenuBtn" class="text-2xl text-gray-700 dark:text-gray-200 focus:outline-none">&#9776;</button>
+      </div>
       <!-- Dark Mode Toggle -->
-      <button id="toggleDark" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:scale-110 transition">
+      <button id="toggleDark" class="ml-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:scale-110 transition text-lg" title="Toggle dark mode">
         🌙
       </button>
     </div>
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-3">
+      <a href="#" class="block py-2 text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Home</a>
+      <a href="#" class="block py-2 text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Features</a>
+      <a href="#" class="block py-2 text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Help</a>
+    </div>
+  </nav>
 
-    <!-- Upload Form -->
-    <form id="uploadForm" class="space-y-6">
-      <!-- Dynamic Fields -->
-      <div id="uploadContainer" class="space-y-4"></div>
-
-      <!-- Add Field Buttons -->
-      <div class="flex justify-center gap-4 flex-wrap">
-        <button type="button" id="addPassportBtn" 
-          class="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm font-semibold shadow">
-          🛂 Passport
-        </button>
-        <button type="button" id="addIDBtn" 
-          class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition flex items-center gap-1 text-sm font-semibold shadow">
-          🆔 ID
-        </button>
-        <button type="button" id="addOtherBtn" 
-          class="bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition flex items-center gap-1 text-sm font-semibold shadow">
-          📁 Other
-        </button>
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col items-center justify-center px-2 md:px-8 py-6 w-full">
+    <div class="w-full max-w-5xl mx-auto bg-white/90 dark:bg-gray-900/90 shadow-2xl rounded-3xl p-4 md:p-8 lg:p-12 mt-4 md:mt-8 mb-4">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-2">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-gray-200 tracking-tight text-center md:text-left">📄 Smart Document Upload</h2>
       </div>
 
-      <!-- Progress -->
-      <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 hidden" id="progressWrapper">
-        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%" id="progressBar"></div>
-      </div>
+      <!-- Upload Form -->
+      <form id="uploadForm" class="space-y-8">
+        <!-- Dynamic Fields -->
+        <div id="uploadContainer" class="space-y-6"></div>
 
-      <!-- Submit -->
-      <button type="submit" 
-        class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition text-lg font-semibold shadow">
-        🚀 Generate Smart PDF
-      </button>
-    </form>
-  </div>
+        <!-- Add Field Buttons -->
+        <div class="flex flex-wrap justify-center gap-4">
+          <button type="button" id="addPassportBtn"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
+            🛂 Passport
+          </button>
+          <button type="button" id="addIDBtn"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
+            🆔 ID
+          </button>
+          <button type="button" id="addOtherBtn"
+            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
+            📁 Other
+          </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 hidden" id="progressWrapper">
+          <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300" style="width: 0%" id="progressBar"></div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit"
+          class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 px-4 rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition text-lg font-bold shadow-xl tracking-wide">
+          🚀 Generate Smart PDF
+        </button>
+      </form>
+    </div>
+  </main>
 
   <!-- Modal for Document Name Input -->
   <div id="nameModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
@@ -108,7 +145,7 @@
       const container = document.getElementById("uploadContainer");
 
       const fieldDiv = document.createElement("div");
-      fieldDiv.className = "border rounded-xl p-4 bg-gray-50 dark:bg-gray-800 relative group shadow";
+      fieldDiv.className = "border rounded-2xl p-4 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 relative group shadow-lg";
       fieldDiv.id = `field-${fieldCount}`;
 
       const optionsHTML = docTypes.map(d => {
@@ -118,25 +155,25 @@
 
       fieldDiv.innerHTML = `
         <div class="flex justify-between items-center mb-2">
-          <label class="font-medium text-gray-700 dark:text-gray-200">Document ${fieldCount}</label>
+          <label class="font-semibold text-gray-700 dark:text-gray-200 tracking-wide">Document ${fieldCount}</label>
           <div class="flex gap-2">
-            <button type="button" onclick="moveUp(${fieldCount})" class="text-gray-500 hover:text-blue-600">⬆</button>
-            <button type="button" onclick="moveDown(${fieldCount})" class="text-gray-500 hover:text-blue-600">⬇</button>
-            <button type="button" onclick="removeField(${fieldCount})" 
-              class="text-red-500 hover:text-red-700">✖</button>
+            <button type="button" onclick="moveUp(${fieldCount})" class="text-gray-500 hover:text-blue-600 text-lg" title="Move up">⬆</button>
+            <button type="button" onclick="moveDown(${fieldCount})" class="text-gray-500 hover:text-blue-600 text-lg" title="Move down">⬇</button>
+            <button type="button" onclick="removeField(${fieldCount})"
+              class="text-red-500 hover:text-red-700 text-lg" title="Remove">✖</button>
           </div>
         </div>
-        <select id="type-${fieldCount}" class="w-full mb-3 p-2 border rounded dark:bg-gray-700 dark:text-gray-200">
+        <select id="type-${fieldCount}" class="w-full mb-3 p-3 border rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 transition">
           ${optionsHTML}
         </select>
         <input type="file" id="file-${fieldCount}" accept="image/*,.pdf" class="hidden" required>
-        <div id="drop-${fieldCount}" 
-          class="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center cursor-pointer hover:border-blue-400 transition bg-white dark:bg-gray-700">
-          <span class="text-gray-500 dark:text-gray-300">📂 Click or Drag & Drop to Upload</span>
+        <div id="drop-${fieldCount}"
+          class="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center cursor-pointer hover:border-blue-400 transition bg-white dark:bg-gray-700 shadow-inner">
+          <span class="text-gray-500 dark:text-gray-300 text-lg">📂 Click or Drag & Drop to Upload</span>
         </div>
-        <div class="mt-3 flex items-center gap-3">
-          <img id="preview-${fieldCount}" class="hidden w-32 h-32 object-cover rounded-lg border shadow" alt="Preview"/>
-          <button type="button" id="cropBtn-${fieldCount}" class="hidden px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition text-sm font-semibold shadow">✂️ Crop</button>
+        <div class="mt-4 flex items-center gap-4">
+          <img id="preview-${fieldCount}" class="hidden id-preview object-cover rounded-xl border-2 border-blue-200 dark:border-gray-700 shadow-lg transition-all duration-200" alt="Preview"/>
+          <button type="button" id="cropBtn-${fieldCount}" class="hidden px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition text-base font-semibold shadow">✂️ Crop</button>
         </div>
         <div id="filename-${fieldCount}" class="mt-2 hidden text-sm text-blue-600 break-all"></div>
       `;
@@ -154,13 +191,14 @@
 
       dropZone.addEventListener("dragover", e => {
         e.preventDefault();
-        dropZone.classList.add("border-blue-500", "bg-blue-50");
+        dropZone.classList.add("border-blue-500", "bg-blue-50", "dark:bg-blue-900/30");
       });
       dropZone.addEventListener("dragleave", () => {
-        dropZone.classList.remove("border-blue-500", "bg-blue-50");
+        dropZone.classList.remove("border-blue-500", "bg-blue-50", "dark:bg-blue-900/30");
       });
       dropZone.addEventListener("drop", e => {
         e.preventDefault();
+        dropZone.classList.remove("border-blue-500", "bg-blue-50", "dark:bg-blue-900/30");
         fileInput.files = e.dataTransfer.files;
         handlePreview(fileInput.files[0], fieldCount);
       });
@@ -419,7 +457,28 @@
     // Dark Mode Toggle
     document.getElementById("toggleDark").addEventListener("click", () => {
       document.documentElement.classList.toggle("dark");
+      // Save to localStorage
+      if (document.documentElement.classList.contains("dark")) {
+        localStorage.setItem("mono-theme", "dark");
+      } else {
+        localStorage.setItem("mono-theme", "light");
+      }
     });
+    // Persist dark mode
+    (() => {
+      const theme = localStorage.getItem("mono-theme");
+      if (theme === "dark") document.documentElement.classList.add("dark");
+      if (theme === "light") document.documentElement.classList.remove("dark");
+    })();
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    }
 
     // CropperJS integration
     const cropModal = document.getElementById("cropModal");
