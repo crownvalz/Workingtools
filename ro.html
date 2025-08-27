@@ -24,11 +24,19 @@
       <!-- Dynamic Fields -->
       <div id="uploadContainer" class="space-y-4"></div>
 
-      <!-- Add Field -->
-      <div class="flex justify-center">
-        <button type="button" id="addFieldBtn" 
-          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
-          ➕ Add Document
+      <!-- Add Field Buttons -->
+      <div class="flex justify-center gap-4 flex-wrap">
+        <button type="button" id="addPassportBtn" 
+          class="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm font-semibold shadow">
+          🛂 Passport
+        </button>
+        <button type="button" id="addIDBtn" 
+          class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition flex items-center gap-1 text-sm font-semibold shadow">
+          🆔 ID
+        </button>
+        <button type="button" id="addOtherBtn" 
+          class="bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition flex items-center gap-1 text-sm font-semibold shadow">
+          📁 Other
         </button>
       </div>
 
@@ -45,6 +53,18 @@
     </form>
   </div>
 
+  <!-- Modal for Document Name Input -->
+  <div id="nameModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 w-11/12 max-w-md">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Enter PDF File Name</h3>
+      <input type="text" id="pdfFileName" placeholder="Document name" class="w-full p-3 border rounded dark:bg-gray-700 dark:text-gray-200 mb-4" />
+      <div class="flex justify-end gap-4">
+        <button onclick="closeNameModal()" type="button" class="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition">Cancel</button>
+        <button onclick="submitPDF()" type="button" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition">Generate PDF</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const { jsPDF } = window.jspdf;
     let fieldCount = 0;
@@ -55,14 +75,19 @@
       { value: "other", label: "Other Document/Image" }
     ];
 
-    // Add Upload Field
-    function addUploadField() {
+    // Add Upload Field with optional preset type
+    function addUploadField(presetType = null) {
       fieldCount++;
       const container = document.getElementById("uploadContainer");
 
       const fieldDiv = document.createElement("div");
       fieldDiv.className = "border rounded-xl p-4 bg-gray-50 dark:bg-gray-800 relative group shadow";
       fieldDiv.id = `field-${fieldCount}`;
+
+      const optionsHTML = docTypes.map(d => {
+        const selected = presetType === d.value ? "selected" : "";
+        return `<option value="${d.value}" ${selected}>${d.label}</option>`;
+      }).join("");
 
       fieldDiv.innerHTML = `
         <div class="flex justify-between items-center mb-2">
@@ -75,7 +100,7 @@
           </div>
         </div>
         <select id="type-${fieldCount}" class="w-full mb-3 p-2 border rounded dark:bg-gray-700 dark:text-gray-200">
-          ${docTypes.map(d => `<option value="${d.value}">${d.label}</option>`).join("")}
+          ${optionsHTML}
         </select>
         <input type="file" id="file-${fieldCount}" accept="image/*,.pdf" class="hidden" required>
         <div id="drop-${fieldCount}" 
@@ -149,13 +174,40 @@
       }
     }
 
-    // First field
-    addUploadField();
-    document.getElementById("addFieldBtn").addEventListener("click", addUploadField);
+    // Page starts empty: do not add initial field
 
-    // Generate PDF
-    document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+    // Add buttons event listeners
+    document.getElementById("addPassportBtn").addEventListener("click", () => addUploadField("passport"));
+    document.getElementById("addIDBtn").addEventListener("click", () => addUploadField("id"));
+    document.getElementById("addOtherBtn").addEventListener("click", () => addUploadField("other"));
+
+    // Open modal instead of generating PDF immediately
+    document.getElementById("uploadForm").addEventListener("submit", function (e) {
       e.preventDefault();
+      document.getElementById("pdfFileName").value = "";
+      document.getElementById("nameModal").classList.remove("hidden");
+      document.getElementById("pdfFileName").focus();
+    });
+
+    // Close modal function
+    function closeNameModal() {
+      document.getElementById("nameModal").classList.add("hidden");
+    }
+
+    // Generate PDF using entered file name
+    async function submitPDF() {
+      const fileNameInput = document.getElementById("pdfFileName");
+      let fileName = fileNameInput.value.trim();
+      if (!fileName) {
+        alert("Please enter a document name.");
+        fileNameInput.focus();
+        return;
+      }
+      // Sanitize filename (remove invalid characters)
+      fileName = fileName.replace(/[\\/:"*?<>|]+/g, '') || "uploaded-documents";
+
+      closeNameModal();
+
       const pdf = new jsPDF();
       pdf.setFontSize(16);
       pdf.text("Uploaded Documents", 10, 15);
@@ -166,6 +218,7 @@
       const progressWrapper = document.getElementById("progressWrapper");
       const progressBar = document.getElementById("progressBar");
       progressWrapper.classList.remove("hidden");
+      progressBar.style.width = "0%";
 
       for (const field of fields) {
         const typeEl = field.querySelector("select");
@@ -201,9 +254,9 @@
         }
       }
 
-      pdf.save("uploaded-documents.pdf");
+      pdf.save(fileName + ".pdf");
       progressWrapper.classList.add("hidden");
-    });
+    }
 
     function toBase64(file) {
       return new Promise((resolve, reject) => {
