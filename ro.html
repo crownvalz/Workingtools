@@ -257,61 +257,154 @@
 
       closeNameModal();
 
-      const pdf = new jsPDF();
-      pdf.setFontSize(16);
-      pdf.text("Uploaded Documents", 10, 15);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
 
-      let y = 30;
+      // Gather all fields and group by type for layouting
       const fields = [...document.getElementById("uploadContainer").children];
+      let passports = [];
+      let ids = [];
+      let others = [];
+      for (const field of fields) {
+        const typeEl = field.querySelector("select");
+        const fileEl = field.querySelector("input[type=file]");
+        if (!fileEl || fileEl.files.length === 0) continue;
+        const file = fileEl.files[0];
+        const id = parseInt(field.id.split("-")[1]);
+        if (typeEl.value === "passport") {
+          passports.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
+        } else if (typeEl.value === "id") {
+          ids.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
+        } else {
+          others.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
+        }
+      }
+
+      // Progress bar setup
       let progress = 0;
+      const totalSteps = passports.length + ids.length + others.length;
       const progressWrapper = document.getElementById("progressWrapper");
       const progressBar = document.getElementById("progressBar");
       progressWrapper.classList.remove("hidden");
       progressBar.style.width = "0%";
 
-      for (const field of fields) {
-        const typeEl = field.querySelector("select");
-        const fileEl = field.querySelector("input[type=file]");
-
-        if (!fileEl || fileEl.files.length === 0) continue;
-        const file = fileEl.files[0];
-        const id = parseInt(field.id.split("-")[1]);
-
-        pdf.setFontSize(12);
-        pdf.text(`${typeEl.options[typeEl.selectedIndex].text}:`, 10, y);
+      // --- PAGE 1: Passport and ID images ---
+      pdf.setFontSize(16);
+      pdf.text("Uploaded Documents", 10, 15);
+      let y = 25;
+      let marginX = 10;
+      let pageW = pdf.internal.pageSize.getWidth();
+      let maxImgH = 45;
+      let imgGap = 6;
+      // --- PASSPORTS ---
+      if (passports.length > 0) {
+        pdf.setFontSize(13);
+        pdf.text("Passport Photos:", marginX, y);
         y += 5;
+        // Arrange horizontally, scale for mobile (fit up to 4 per row, wrap if more)
+        let imgW = 35, imgH = 45;
+        let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
+        perRow = Math.max(1, Math.min(4, perRow));
+        let x = marginX;
+        let rowY = y;
+        for (let i = 0; i < passports.length; ++i) {
+          let {file, id} = passports[i];
+          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          pdf.addImage(imgDataUrl, "JPEG", x, rowY, imgW, imgH);
+          x += imgW + imgGap;
+          // Wrap to next row if needed
+          if ((i + 1) % perRow === 0) {
+            x = marginX;
+            rowY += imgH + imgGap + 5;
+          }
+          progress += 1;
+          progressBar.style.width = (progress * 100 / totalSteps) + "%";
+        }
+        y = rowY + imgH + imgGap;
+      }
+      // --- IDS ---
+      if (ids.length > 0) {
+        pdf.setFontSize(13);
+        pdf.text("ID Images:", marginX, y);
+        y += 5;
+        // Arrange horizontally, scale for mobile (fit up to 2-3 per row)
+        let imgW = 50, imgH = 35;
+        let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
+        perRow = Math.max(1, Math.min(3, perRow));
+        let x = marginX;
+        let rowY = y;
+        for (let i = 0; i < ids.length; ++i) {
+          let {file, id} = ids[i];
+          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          pdf.addImage(imgDataUrl, "JPEG", x, rowY, imgW, imgH);
+          x += imgW + imgGap;
+          if ((i + 1) % perRow === 0) {
+            x = marginX;
+            rowY += imgH + imgGap + 3;
+          }
+          progress += 1;
+          progressBar.style.width = (progress * 100 / totalSteps) + "%";
+        }
+        y = rowY + imgH + imgGap;
+      }
 
+      // Copyright notice (bottom center)
+      addCopyrightNotice(pdf);
+
+      // --- OTHERS: Each on its own page ---
+      for (let i = 0; i < others.length; ++i) {
+        if (i > 0 || passports.length > 0 || ids.length > 0) pdf.addPage();
+        let {file, id, label} = others[i];
+        pdf.setFontSize(14);
+        pdf.text(label, 10, 20);
+        let yStart = 30;
         if (file.type.includes("image")) {
-          // Use cropped image if exists, else original
-          let imgDataUrl;
-          if (croppedImages[id]) {
-            imgDataUrl = croppedImages[id];
-          } else {
-            imgDataUrl = await toBase64(file);
-          }
-          if (typeEl.value === "passport") {
-            pdf.addImage(imgDataUrl, "JPEG", 10, y, 35, 45);
-            y += 55;
-          } else {
-            pdf.addImage(imgDataUrl, "JPEG", 10, y, 80, 60);
-            y += 70;
-          }
+          // Fit image to page (with margin), keeping aspect ratio
+          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          let pageW = pdf.internal.pageSize.getWidth();
+          let pageH = pdf.internal.pageSize.getHeight();
+          let maxW = pageW - 20, maxH = pageH - 60;
+          // Load image to get its aspect
+          await new Promise((resolve) => {
+            let img = new window.Image();
+            img.onload = function() {
+              let w = img.width, h = img.height;
+              let scale = Math.min(maxW / w, maxH / h, 1);
+              let drawW = w * scale, drawH = h * scale;
+              let x = (pageW - drawW) / 2;
+              let y = yStart;
+              pdf.addImage(imgDataUrl, "JPEG", x, y, drawW, drawH);
+              resolve();
+            };
+            img.src = imgDataUrl;
+          });
         } else {
-          pdf.text(`Attached file: ${file.name}`, 10, y);
-          y += 15;
+          // Just show file name
+          pdf.setFontSize(12);
+          pdf.text(`Attached file: ${file.name}`, 10, yStart);
         }
-
-        progress += (100 / fields.length);
-        progressBar.style.width = progress + "%";
-
-        if (y > 260) {
-          pdf.addPage();
-          y = 20;
-        }
+        addCopyrightNotice(pdf);
+        progress += 1;
+        progressBar.style.width = (progress * 100 / totalSteps) + "%";
       }
 
       pdf.save(fileName + ".pdf");
       progressWrapper.classList.add("hidden");
+    }
+
+    // Add copyright notice at the bottom of the current page
+    function addCopyrightNotice(pdf) {
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      pdf.setFontSize(8);
+      pdf.setTextColor(120,120,120);
+      const text = "© Godfrey Mono - 0712220782";
+      const textWidth = pdf.getTextWidth(text);
+      pdf.text(text, (pageW - textWidth) / 2, pageH - 8, {align: "center"});
+      pdf.setTextColor(0,0,0);
     }
 
     function toBase64(file) {
