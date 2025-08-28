@@ -76,6 +76,10 @@
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
             <i class="fas fa-passport mr-1"></i> Passport
           </button>
+          <button type="button" id="addThumbBtn"
+            class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
+            <i class="fas fa-fingerprint mr-1"></i> Thumb Print
+          </button>
           <button type="button" id="addIDBtn"
             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
             <i class="fas fa-id-card mr-1"></i> ID
@@ -136,6 +140,7 @@
     const docTypes = [
       { value: "passport", label: "Passport Photo (Passport Size)" },
       { value: "id", label: "ID Image" },
+      { value: "thumb", label: "Thumb Print" },
       { value: "other", label: "Other Document/Image" }
     ];
 
@@ -230,6 +235,8 @@
           preview.classList.remove("hidden");
           filenameDiv.classList.add("hidden");
           cropBtn.classList.remove("hidden");
+          // Automatically open crop modal after preview loads
+          openCropModal(id);
         };
         reader.readAsDataURL(file);
       } else {
@@ -265,6 +272,7 @@
 
     // Add buttons event listeners
     document.getElementById("addPassportBtn").addEventListener("click", () => addUploadField("passport"));
+    document.getElementById("addThumbBtn").addEventListener("click", () => addUploadField("thumb"));
     document.getElementById("addIDBtn").addEventListener("click", () => addUploadField("id"));
     document.getElementById("addOtherBtn").addEventListener("click", () => addUploadField("other"));
 
@@ -305,6 +313,7 @@
       const fields = [...document.getElementById("uploadContainer").children];
       let passports = [];
       let ids = [];
+      let thumbs = [];
       let others = [];
       for (const field of fields) {
         const typeEl = field.querySelector("select");
@@ -316,6 +325,8 @@
           passports.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
         } else if (typeEl.value === "id") {
           ids.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
+        } else if (typeEl.value === "thumb") {
+          thumbs.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
         } else {
           others.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
         }
@@ -323,7 +334,7 @@
 
       // Progress bar setup
       let progress = 0;
-      const totalSteps = passports.length + ids.length + others.length;
+      const totalSteps = passports.length + ids.length + thumbs.length + others.length;
       const progressWrapper = document.getElementById("progressWrapper");
       const progressBar = document.getElementById("progressBar");
       progressWrapper.classList.remove("hidden");
@@ -331,7 +342,7 @@
 
       // --- PAGE 1: Passport and ID images ---
       pdf.setFontSize(16);
-      pdf.text("Uploaded Documents", 10, 15);
+      pdf.text("CIFIS MADE EASY BY MONO", 10, 15);
       let y = 25;
       let marginX = 10;
       let pageW = pdf.internal.pageSize.getWidth();
@@ -340,7 +351,6 @@
       // --- PASSPORTS ---
       if (passports.length > 0) {
         pdf.setFontSize(13);
-        pdf.text("Passport Photos:", marginX, y);
         y += 5;
         // Arrange horizontally, scale for mobile (fit up to 4 per row, wrap if more)
         let imgW = 35, imgH = 45;
@@ -363,10 +373,36 @@
         }
         y = rowY + imgH + imgGap;
       }
+
+      // --- THUMB PRINTS ---
+      if (thumbs.length > 0) {
+        // pdf.text("Thumb Prints:", marginX, y);
+        y += 5;
+        // Arrange horizontally, image is about size of two passports
+        let imgW = 70, imgH = 45;
+        let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
+        perRow = Math.max(1, Math.min(4, perRow));
+        let x = marginX;
+        let rowY = y;
+        for (let i = 0; i < thumbs.length; ++i) {
+          let {file, id} = thumbs[i];
+          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          pdf.addImage(imgDataUrl, "JPEG", x, rowY, imgW, imgH);
+          x += imgW + imgGap;
+          // Wrap to next row if needed
+          if ((i + 1) % perRow === 0) {
+            x = marginX;
+            rowY += imgH + imgGap + 5;
+          }
+          progress += 1;
+          progressBar.style.width = (progress * 100 / totalSteps) + "%";
+        }
+        y = rowY + imgH + imgGap;
+      }
+
       // --- IDS ---
       if (ids.length > 0) {
         pdf.setFontSize(13);
-        pdf.text("ID Images:", marginX, y);
         y += 5;
         // Arrange horizontally, scale for mobile (fit up to 2-3 per row)
         // Use 75% of the A4 page width for each image
@@ -490,6 +526,9 @@
           } else if (fieldType === "id") {
             // Landscape: 85.6mm x 54mm (credit card)
             aspectRatio = 85.6 / 54;
+          } else if (fieldType === "thumb") {
+            // Freeform crop for thumb print to preserve natural ratio
+            aspectRatio = NaN;
           } else {
             aspectRatio = NaN;
           }
