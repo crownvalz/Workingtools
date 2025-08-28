@@ -7,6 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+  <!-- Font Awesome CDN for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
   <style>
     /* Cropper container should be responsive and max height */
     #cropperImage {
@@ -40,14 +42,12 @@
         <a href="#" class="text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Features</a>
         <a href="#" class="text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Help</a>
       </div>
-      <!-- Mobile menu toggle (hidden for now) -->
+
+
+            <!-- Mobile menu toggle (hidden for now) -->
       <div class="md:hidden">
         <button id="mobileMenuBtn" class="text-2xl text-gray-700 dark:text-gray-200 focus:outline-none">&#9776;</button>
       </div>
-      <!-- Dark Mode Toggle -->
-      <button id="toggleDark" class="ml-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:scale-110 transition text-lg" title="Toggle dark mode">
-        🌙
-      </button>
     </div>
     <!-- Mobile menu -->
     <div id="mobileMenu" class="md:hidden hidden px-4 pb-3">
@@ -74,15 +74,15 @@
         <div class="flex flex-wrap justify-center gap-4">
           <button type="button" id="addPassportBtn"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
-            🛂 Passport
+            <i class="fas fa-passport mr-1"></i> Passport
           </button>
           <button type="button" id="addIDBtn"
             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
-            🆔 ID
+            <i class="fas fa-id-card mr-1"></i> ID
           </button>
           <button type="button" id="addOtherBtn"
             class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
-            📁 Other
+            <i class="fas fa-file-alt mr-1"></i> Other
           </button>
         </div>
 
@@ -93,8 +93,8 @@
 
         <!-- Submit -->
         <button type="submit"
-          class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 px-4 rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition text-lg font-bold shadow-xl tracking-wide">
-          🚀 Generate Smart PDF
+          class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 px-4 rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition text-lg font-bold shadow-xl tracking-wide flex items-center justify-center gap-2">
+          <i class="fas fa-file-pdf mr-2"></i> Generate Smart PDF
         </button>
       </form>
     </div>
@@ -369,7 +369,9 @@
         pdf.text("ID Images:", marginX, y);
         y += 5;
         // Arrange horizontally, scale for mobile (fit up to 2-3 per row)
-        let imgW = 50, imgH = 35;
+        // Use 75% of the A4 page width for each image
+        let imgW = pageW * 0.75;
+        let imgH = imgW * 0.7; // maintain aspect ratio (approx 70% height of width)
         let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
         perRow = Math.max(1, Math.min(3, perRow));
         let x = marginX;
@@ -454,22 +456,6 @@
       });
     }
 
-    // Dark Mode Toggle
-    document.getElementById("toggleDark").addEventListener("click", () => {
-      document.documentElement.classList.toggle("dark");
-      // Save to localStorage
-      if (document.documentElement.classList.contains("dark")) {
-        localStorage.setItem("mono-theme", "dark");
-      } else {
-        localStorage.setItem("mono-theme", "light");
-      }
-    });
-    // Persist dark mode
-    (() => {
-      const theme = localStorage.getItem("mono-theme");
-      if (theme === "dark") document.documentElement.classList.add("dark");
-      if (theme === "light") document.documentElement.classList.remove("dark");
-    })();
 
     // Mobile menu toggle
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
@@ -491,6 +477,25 @@
       const previewImg = document.getElementById(`preview-${fieldId}`);
       if (!previewImg || previewImg.classList.contains("hidden")) return;
 
+      // Find the type select element inside this field
+      let aspectRatio = NaN;
+      const fieldDiv = document.getElementById(`field-${fieldId}`);
+      if (fieldDiv) {
+        const typeSelect = fieldDiv.querySelector("select");
+        if (typeSelect) {
+          const fieldType = typeSelect.value;
+          if (fieldType === "passport") {
+            // Portrait: 35mm x 45mm (width/height)
+            aspectRatio = 35 / 45;
+          } else if (fieldType === "id") {
+            // Landscape: 85.6mm x 54mm (credit card)
+            aspectRatio = 85.6 / 54;
+          } else {
+            aspectRatio = NaN;
+          }
+        }
+      }
+
       cropperImage.src = previewImg.src;
       cropModal.classList.remove("hidden");
 
@@ -502,7 +507,7 @@
         }
         cropper = new Cropper(cropperImage, {
           viewMode: 1,
-          aspectRatio: NaN,
+          aspectRatio: aspectRatio,
           autoCropArea: 1,
           responsive: true,
           background: false,
