@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
-  <!-- Font Awesome CDN for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
   <style>
     /* Cropper container should be responsive and max height */
@@ -26,11 +25,23 @@
       max-width: 10rem;
       max-height: 10rem;
     }
+    /* New styles for the list view functionality */
+    .drag-drop-area {
+      display: block;
+    }
+    .file-preview-area {
+      display: none;
+    }
+    .file-loaded .drag-drop-area {
+      display: none;
+    }
+    .file-loaded .file-preview-area {
+      display: flex;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-tr from-blue-100 via-purple-100 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500 min-h-screen flex flex-col">
 
-  <!-- Responsive Navigation Bar -->
   <nav class="w-full z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-8 py-2 flex justify-between items-center">
       <div class="flex items-center gap-2">
@@ -43,13 +54,10 @@
         <a href="#" class="text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Help</a>
       </div>
 
-
-            <!-- Mobile menu toggle (hidden for now) -->
       <div class="md:hidden">
         <button id="mobileMenuBtn" class="text-2xl text-gray-700 dark:text-gray-200 focus:outline-none">&#9776;</button>
       </div>
     </div>
-    <!-- Mobile menu -->
     <div id="mobileMenu" class="md:hidden hidden px-4 pb-3">
       <a href="#" class="block py-2 text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Home</a>
       <a href="#" class="block py-2 text-gray-700 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-purple-300 transition">Features</a>
@@ -57,32 +65,27 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="flex-1 flex flex-col items-center justify-center px-2 md:px-8 py-6 w-full">
     <div class="w-full max-w-5xl mx-auto bg-white/90 dark:bg-gray-900/90 shadow-2xl rounded-3xl p-4 md:p-8 lg:p-12 mt-4 md:mt-8 mb-4">
-      <!-- Header -->
       <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-2">
         <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-gray-200 tracking-tight text-center md:text-left">📄 Smart Document Upload</h2>
       </div>
 
-      <!-- Upload Form -->
       <form id="uploadForm" class="space-y-8">
-        <!-- Dynamic Fields -->
         <div id="uploadContainer" class="space-y-6"></div>
 
-        <!-- Add Field Buttons -->
         <div class="flex flex-wrap justify-center gap-4">
           <button type="button" id="addPassportBtn"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
             <i class="fas fa-passport mr-1"></i> Passport
           </button>
-          <button type="button" id="addThumbBtn"
-            class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
-            <i class="fas fa-fingerprint mr-1"></i> Thumb Print
-          </button>
-          <button type="button" id="addIDBtn"
+        <button type="button" id="addIDBtn"
             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
             <i class="fas fa-id-card mr-1"></i> ID
+          </button>
+          <button type="button" id="addThumbBtn"
+            class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
+            <i class="fas fa-fingerprint mr-1"></i> Thumb
           </button>
           <button type="button" id="addOtherBtn"
             class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 active:scale-95 transition flex items-center gap-1 text-base font-semibold shadow-lg">
@@ -90,12 +93,10 @@
           </button>
         </div>
 
-        <!-- Progress -->
         <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 hidden" id="progressWrapper">
           <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300" style="width: 0%" id="progressBar"></div>
         </div>
 
-        <!-- Submit -->
         <button type="submit"
           class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 px-4 rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition text-lg font-bold shadow-xl tracking-wide flex items-center justify-center gap-2">
           <i class="fas fa-file-pdf mr-2"></i> Generate Smart PDF
@@ -104,7 +105,6 @@
     </div>
   </main>
 
-  <!-- Modal for Document Name Input -->
   <div id="nameModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 w-11/12 max-w-md">
       <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Enter PDF File Name</h3>
@@ -116,7 +116,6 @@
     </div>
   </div>
 
-  <!-- Cropper Modal -->
   <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-60">
     <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-4 w-11/12 max-w-3xl max-h-[80vh] flex flex-col">
       <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 text-center">Crop Image</h3>
@@ -172,28 +171,28 @@
           ${optionsHTML}
         </select>
         <input type="file" id="file-${fieldCount}" accept="image/*,.pdf" class="hidden" required>
+        
         <div id="drop-${fieldCount}"
-          class="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center cursor-pointer hover:border-blue-400 transition bg-white dark:bg-gray-700 shadow-inner">
+          class="drag-drop-area border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center cursor-pointer hover:border-blue-400 transition bg-white dark:bg-gray-700 shadow-inner">
           <span class="text-gray-500 dark:text-gray-300 text-lg">📂 Click or Drag & Drop to Upload</span>
         </div>
-        <div class="mt-4 flex items-center gap-4">
-          <img id="preview-${fieldCount}" class="hidden id-preview object-cover rounded-xl border-2 border-blue-200 dark:border-gray-700 shadow-lg transition-all duration-200" alt="Preview"/>
-          <button type="button" id="cropBtn-${fieldCount}" class="hidden px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition text-base font-semibold shadow">✂️ Crop</button>
+        
+        <div id="preview-area-${fieldCount}" class="file-preview-area mt-4 items-center gap-4" style="display: none;">
+          <img id="preview-${fieldCount}" class="id-preview object-cover rounded-xl border-2 border-blue-200 dark:border-gray-700 shadow-lg transition-all duration-200" alt="Preview"/>
+          <div class="flex flex-col gap-2">
+              <span id="filename-${fieldCount}" class="text-sm text-gray-700 dark:text-gray-300 break-all"></span>
+              <button type="button" id="cropBtn-${fieldCount}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition text-base font-semibold shadow">✂️ Crop</button>
+          </div>
         </div>
-        <div id="filename-${fieldCount}" class="mt-2 hidden text-sm text-blue-600 break-all"></div>
       `;
 
       container.appendChild(fieldDiv);
 
-      // File upload + preview
       const dropZone = document.getElementById(`drop-${fieldCount}`);
       const fileInput = document.getElementById(`file-${fieldCount}`);
-      const preview = document.getElementById(`preview-${fieldCount}`);
-      const filenameDiv = document.getElementById(`filename-${fieldCount}`);
       const cropBtn = document.getElementById(`cropBtn-${fieldCount}`);
 
       dropZone.addEventListener("click", () => fileInput.click());
-
       dropZone.addEventListener("dragover", e => {
         e.preventDefault();
         dropZone.classList.add("border-blue-500", "bg-blue-50", "dark:bg-blue-900/30");
@@ -209,41 +208,55 @@
       });
 
       fileInput.addEventListener("change", e => handlePreview(e.target.files[0], fieldCount));
+      cropBtn.addEventListener("click", () => openCropModal(fieldCount));
+    }
 
-      // Crop button event
-      cropBtn.addEventListener("click", () => {
-        openCropModal(fieldCount);
-      });
+    // New function to handle UI state change
+    function updateFieldUI(fieldId, hasFile) {
+        const fieldDiv = document.getElementById(`field-${fieldId}`);
+        const previewArea = document.getElementById(`preview-area-${fieldId}`);
+        if (fieldDiv) {
+            if (hasFile) {
+                fieldDiv.classList.add("file-loaded");
+                previewArea.style.display = 'flex';
+            } else {
+                fieldDiv.classList.remove("file-loaded");
+                previewArea.style.display = 'none';
+            }
+        }
     }
 
     // Store cropped data URLs per field
     const croppedImages = {};
 
     function handlePreview(file, id) {
-      if (!file) return;
+      if (!file) {
+        updateFieldUI(id, false);
+        return;
+      }
+
       const preview = document.getElementById(`preview-${id}`);
       const filenameDiv = document.getElementById(`filename-${id}`);
       const cropBtn = document.getElementById(`cropBtn-${id}`);
-
-      // Clear any previous cropped image for this field because new file loaded
       delete croppedImages[id];
 
       if (file.type.includes("image")) {
         const reader = new FileReader();
         reader.onload = ev => {
           preview.src = ev.target.result;
-          preview.classList.remove("hidden");
-          filenameDiv.classList.add("hidden");
-          cropBtn.classList.remove("hidden");
+          filenameDiv.textContent = file.name;
+          updateFieldUI(id, true);
+          // Only show crop button for image files
+          cropBtn.style.display = 'inline-block';
           // Automatically open crop modal after preview loads
           openCropModal(id);
         };
         reader.readAsDataURL(file);
       } else {
         filenameDiv.textContent = "📄 " + file.name;
-        filenameDiv.classList.remove("hidden");
-        preview.classList.add("hidden");
-        cropBtn.classList.add("hidden");
+        updateFieldUI(id, true);
+        // Hide crop button for non-image files like PDFs
+        cropBtn.style.display = 'none';
       }
     }
 
@@ -321,15 +334,11 @@
         if (!fileEl || fileEl.files.length === 0) continue;
         const file = fileEl.files[0];
         const id = parseInt(field.id.split("-")[1]);
-        if (typeEl.value === "passport") {
-          passports.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
-        } else if (typeEl.value === "id") {
-          ids.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
-        } else if (typeEl.value === "thumb") {
-          thumbs.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
-        } else {
-          others.push({file, id, label: typeEl.options[typeEl.selectedIndex].text});
-        }
+        const data = {file, id, label: typeEl.options[typeEl.selectedIndex].text, croppedImage: croppedImages[id]};
+        if (typeEl.value === "passport") passports.push(data);
+        else if (typeEl.value === "id") ids.push(data);
+        else if (typeEl.value === "thumb") thumbs.push(data);
+        else others.push(data);
       }
 
       // Progress bar setup
@@ -352,18 +361,16 @@
       if (passports.length > 0) {
         pdf.setFontSize(13);
         y += 5;
-        // Arrange horizontally, scale for mobile (fit up to 4 per row, wrap if more)
         let imgW = 35, imgH = 45;
         let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
         perRow = Math.max(1, Math.min(4, perRow));
         let x = marginX;
         let rowY = y;
         for (let i = 0; i < passports.length; ++i) {
-          let {file, id} = passports[i];
-          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          let {file, id, croppedImage} = passports[i];
+          let imgDataUrl = croppedImage || await toBase64(file);
           pdf.addImage(imgDataUrl, "JPEG", x, rowY, imgW, imgH);
           x += imgW + imgGap;
-          // Wrap to next row if needed
           if ((i + 1) % perRow === 0) {
             x = marginX;
             rowY += imgH + imgGap + 5;
@@ -376,20 +383,17 @@
 
       // --- THUMB PRINTS ---
       if (thumbs.length > 0) {
-        // pdf.text("Thumb Prints:", marginX, y);
         y += 5;
-        // Arrange horizontally, image is about size of two passports
         let imgW = 70, imgH = 45;
         let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
         perRow = Math.max(1, Math.min(4, perRow));
         let x = marginX;
         let rowY = y;
         for (let i = 0; i < thumbs.length; ++i) {
-          let {file, id} = thumbs[i];
-          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          let {file, id, croppedImage} = thumbs[i];
+          let imgDataUrl = croppedImage || await toBase64(file);
           pdf.addImage(imgDataUrl, "JPEG", x, rowY, imgW, imgH);
           x += imgW + imgGap;
-          // Wrap to next row if needed
           if ((i + 1) % perRow === 0) {
             x = marginX;
             rowY += imgH + imgGap + 5;
@@ -404,17 +408,15 @@
       if (ids.length > 0) {
         pdf.setFontSize(13);
         y += 5;
-        // Arrange horizontally, scale for mobile (fit up to 2-3 per row)
-        // Use 75% of the A4 page width for each image
         let imgW = pageW * 0.75;
-        let imgH = imgW * 0.7; // maintain aspect ratio (approx 70% height of width)
+        let imgH = imgW * 0.7;
         let perRow = Math.floor((pageW - 2 * marginX + imgGap) / (imgW + imgGap));
         perRow = Math.max(1, Math.min(3, perRow));
         let x = marginX;
         let rowY = y;
         for (let i = 0; i < ids.length; ++i) {
-          let {file, id} = ids[i];
-          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          let {file, id, croppedImage} = ids[i];
+          let imgDataUrl = croppedImage || await toBase64(file);
           pdf.addImage(imgDataUrl, "JPEG", x, rowY, imgW, imgH);
           x += imgW + imgGap;
           if ((i + 1) % perRow === 0) {
@@ -427,23 +429,20 @@
         y = rowY + imgH + imgGap;
       }
 
-      // Copyright notice (bottom center)
       addCopyrightNotice(pdf);
 
       // --- OTHERS: Each on its own page ---
       for (let i = 0; i < others.length; ++i) {
-        if (i > 0 || passports.length > 0 || ids.length > 0) pdf.addPage();
-        let {file, id, label} = others[i];
+        if (i > 0 || passports.length > 0 || ids.length > 0 || thumbs.length > 0) pdf.addPage();
+        let {file, id, label, croppedImage} = others[i];
         pdf.setFontSize(14);
         pdf.text(label, 10, 20);
         let yStart = 30;
         if (file.type.includes("image")) {
-          // Fit image to page (with margin), keeping aspect ratio
-          let imgDataUrl = croppedImages[id] ? croppedImages[id] : await toBase64(file);
+          let imgDataUrl = croppedImage || await toBase64(file);
           let pageW = pdf.internal.pageSize.getWidth();
           let pageH = pdf.internal.pageSize.getHeight();
           let maxW = pageW - 20, maxH = pageH - 60;
-          // Load image to get its aspect
           await new Promise((resolve) => {
             let img = new window.Image();
             img.onload = function() {
@@ -458,7 +457,6 @@
             img.src = imgDataUrl;
           });
         } else {
-          // Just show file name
           pdf.setFontSize(12);
           pdf.text(`Attached file: ${file.name}`, 10, yStart);
         }
@@ -492,7 +490,6 @@
       });
     }
 
-
     // Mobile menu toggle
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
     const mobileMenu = document.getElementById("mobileMenu");
@@ -511,26 +508,18 @@
     function openCropModal(fieldId) {
       currentCropFieldId = fieldId;
       const previewImg = document.getElementById(`preview-${fieldId}`);
-      if (!previewImg || previewImg.classList.contains("hidden")) return;
+      if (!previewImg || previewImg.src.includes('data:image') === false) return;
 
-      // Find the type select element inside this field
-      let aspectRatio = NaN;
+      let defaultAspectRatio = null;
       const fieldDiv = document.getElementById(`field-${fieldId}`);
       if (fieldDiv) {
         const typeSelect = fieldDiv.querySelector("select");
         if (typeSelect) {
           const fieldType = typeSelect.value;
           if (fieldType === "passport") {
-            // Portrait: 35mm x 45mm (width/height)
-            aspectRatio = 35 / 45;
+            defaultAspectRatio = 35 / 45;
           } else if (fieldType === "id") {
-            // Landscape: 85.6mm x 54mm (credit card)
-            aspectRatio = 85.6 / 54;
-          } else if (fieldType === "thumb") {
-            // Freeform crop for thumb print to preserve natural ratio
-            aspectRatio = NaN;
-          } else {
-            aspectRatio = NaN;
+            defaultAspectRatio = 85.6 / 54;
           }
         }
       }
@@ -538,18 +527,37 @@
       cropperImage.src = previewImg.src;
       cropModal.classList.remove("hidden");
 
-      // Wait a tick for image to load before initializing cropper
       setTimeout(() => {
         if (cropper) {
           cropper.destroy();
           cropper = null;
         }
+
+        // Initialize Cropper.js with a default crop box but allow free cropping
         cropper = new Cropper(cropperImage, {
           viewMode: 1,
-          aspectRatio: aspectRatio,
           autoCropArea: 1,
           responsive: true,
           background: false,
+          
+          // Set an initial crop box based on the default aspect ratio
+          ready() {
+            if (defaultAspectRatio) {
+              const canvasData = cropper.getCanvasData();
+              const cropBoxData = {
+                width: canvasData.width,
+                height: canvasData.width / defaultAspectRatio,
+                left: canvasData.left,
+                top: canvasData.top
+              };
+              if (cropBoxData.height > canvasData.height) {
+                cropBoxData.height = canvasData.height;
+                cropBoxData.width = canvasData.height * defaultAspectRatio;
+                cropBoxData.left = (canvasData.width - cropBoxData.width) / 2;
+              }
+              cropper.setCropBoxData(cropBoxData);
+            }
+          }
         });
       }, 100);
     }
@@ -571,11 +579,9 @@
         const croppedDataUrl = canvas.toDataURL("image/jpeg");
         croppedImages[currentCropFieldId] = croppedDataUrl;
 
-        // Update preview image
         const previewImg = document.getElementById(`preview-${currentCropFieldId}`);
         previewImg.src = croppedDataUrl;
 
-        // Clean up and close modal
         cropper.destroy();
         cropper = null;
         cropModal.classList.add("hidden");
