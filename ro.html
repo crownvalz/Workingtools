@@ -5,14 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Asset Barcode Scanner</title>
 <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background-color: #f2f2f2; }
+  #reader { width: 100%; max-width: 400px; margin-top: 20px; }
+  button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
+</style>
 </head>
 <body>
 
-<h2>Asset Management Barcode Scanner</h2>
+<h1>Asset Management Barcode Scanner</h1>
+<p>Point your camera at a barcode to scan.</p>
 
-<div id="reader" style="width: 300px;"></div>
+<div id="reader"></div>
 
-<table id="assetTable" border="1">
+<table id="assetTable">
   <thead>
     <tr>
       <th>Asset Name</th>
@@ -29,13 +38,14 @@
 <script>
 let scannedData = [];
 
+// Called when a barcode is successfully scanned
 function onScanSuccess(decodedText, decodedResult) {
-    console.log(`Barcode scanned: ${decodedText}`);
-    
+    // Prompt for asset name
     let assetName = prompt("Enter Asset Name:", "Asset");
-    let timestamp = new Date().toLocaleString();
-    
-    scannedData.push({name: assetName, barcode: decodedText, time: timestamp});
+    if (!assetName) assetName = "Unknown";
+
+    const timestamp = new Date().toLocaleString();
+    scannedData.push({ name: assetName, barcode: decodedText, time: timestamp });
 
     // Add to table
     const tbody = document.querySelector("#assetTable tbody");
@@ -45,22 +55,33 @@ function onScanSuccess(decodedText, decodedResult) {
     row.insertCell(2).innerText = timestamp;
 }
 
-function startScanner() {
-    const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        {
-            fps: 10,
-            qrbox: 250
-        },
-        onScanSuccess
-    );
-}
+// Initialize scanner
+const html5QrCode = new Html5Qrcode("reader");
 
-startScanner();
+Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) {
+        // Use first available camera
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            onScanSuccess
+        ).catch(err => {
+            console.error("Camera start error:", err);
+            alert("Cannot access camera. Please allow camera permissions.");
+        });
+    }
+}).catch(err => {
+    console.error("Camera error:", err);
+    alert("No camera found.");
+});
 
-// CSV download
+// Download CSV
 document.getElementById("downloadCsv").addEventListener("click", () => {
+    if (scannedData.length === 0) {
+        alert("No data to export.");
+        return;
+    }
+
     let csvContent = "Asset Name,Barcode,Timestamp\n";
     scannedData.forEach(item => {
         csvContent += `${item.name},${item.barcode},${item.time}\n`;
