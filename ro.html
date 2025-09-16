@@ -63,19 +63,6 @@
             border-radius: 4px;
         }
 
-        .input-row button {
-            padding: 9px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .input-row button:hover {
-            background-color: #218838;
-        }
-
         #downloadCsvBtn {
             display: block;
             margin: 20px auto;
@@ -105,7 +92,6 @@
 
     <div class="input-row">
         <input type="text" id="assetNameInput" placeholder="Enter Asset Name (optional)">
-        <button id="addAssetBtn">Add Asset</button>
     </div>
 
     <table id="assetTable">
@@ -123,10 +109,8 @@
 
     <script>
         let scannedAssets = [];
-        let lastScannedCode = null;
 
         const assetNameInput = document.getElementById('assetNameInput');
-        const addAssetBtn = document.getElementById('addAssetBtn');
         const assetTableBody = document.querySelector('#assetTable tbody');
         const downloadCsvBtn = document.getElementById('downloadCsvBtn');
 
@@ -152,17 +136,10 @@
                 <td>${asset.timestamp}</td>
             `;
             assetTableBody.appendChild(row);
-        }
 
-        addAssetBtn.addEventListener('click', () => {
-            if (!lastScannedCode) {
-                alert('No barcode scanned yet!');
-                return;
-            }
-            addAsset(lastScannedCode, assetNameInput.value);
+            // Clear input after adding
             assetNameInput.value = '';
-            lastScannedCode = null;
-        });
+        }
 
         downloadCsvBtn.addEventListener('click', () => {
             if (scannedAssets.length === 0) {
@@ -188,14 +165,11 @@
         });
 
         function onScanSuccess(decodedText, decodedResult) {
-            // Save last scanned barcode
-            lastScannedCode = decodedText;
-            // Auto-fill asset name input with last scanned barcode
-            assetNameInput.value = '';
+            addAsset(decodedText, assetNameInput.value);
         }
 
         function onScanError(errorMessage) {
-            // Handle scan error if needed
+            // Optionally log scanning errors
             console.log(errorMessage);
         }
 
@@ -203,11 +177,12 @@
 
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
+                // Prefer rear camera
                 const cameraId = cameras.find(cam => cam.label.toLowerCase().includes("back"))?.id || cameras[0].id;
                 html5QrCode.start(
                     cameraId,
                     {
-                        fps: 10,    // Scans per second
+                        fps: 10,
                         qrbox: { width: 250, height: 250 },
                         aspectRatio: 1.0
                     },
