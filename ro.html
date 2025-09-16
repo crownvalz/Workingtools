@@ -20,11 +20,16 @@
 
     <!-- Scanner Section -->
     <section class="md:w-1/2 bg-white p-4 rounded shadow">
-      <h2 class="text-lg font-semibold mb-2">Live Barcode Scanner</h2>
-      <div id="scanner-container" class="w-full h-64 border border-gray-300 rounded overflow-hidden relative">
-        <video id="scanner-preview" class="w-full h-full object-cover"></video>
+      <h2 class="text-lg font-semibold mb-2">Barcode Scanner</h2>
+      <div id="scanner-container" class="w-full h-64 border border-gray-300 rounded overflow-hidden relative flex items-center justify-center">
+        <p id="scanner-fallback-msg" class="text-gray-500 text-center px-2">
+          Camera not available. Use the button below to upload an image of a barcode.
+        </p>
+        <video id="scanner-preview" class="w-full h-full object-cover hidden"></video>
       </div>
-      <p id="scanner-status" class="mt-2 text-sm text-gray-600">Initializing scanner...</p>
+      <input type="file" id="barcode-file" accept="image/*" class="mt-2 border border-gray-300 rounded px-2 py-1 w-full">
+      <p id="scanner-status" class="mt-2 text-sm text-gray-600"></p>
+      <button id="scan-file-btn" class="mt-2 w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Scan Uploaded Image</button>
     </section>
 
     <!-- Table Section -->
@@ -54,7 +59,6 @@
   </main>
 
   <script>
-    // --- Local Storage and Data Management ---
     let scannedItems = JSON.parse(localStorage.getItem('scannedItems') || '[]');
 
     function saveData() {
@@ -83,7 +87,6 @@
           tbody.appendChild(tr);
         });
 
-      // Add event listeners
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const i = e.target.dataset.index;
@@ -101,12 +104,10 @@
       });
     }
 
-    // --- Search/filter ---
     document.getElementById('search-input').addEventListener('input', e => {
       renderTable(e.target.value);
     });
 
-    // --- CSV Export ---
     document.getElementById('export-btn').addEventListener('click', () => {
       if (scannedItems.length === 0) return alert("No data to export.");
       const csv = Papa.unparse(scannedItems);
@@ -114,56 +115,47 @@
       saveAs(blob, "scanned_assets.csv");
     });
 
-    // --- Barcode Scanner using QuaggaJS ---
-    const scannerStatus = document.getElementById('scanner-status');
+    renderTable();
 
-    Quagga.init({
-      inputStream: {
-        type: "LiveStream",
-        constraints: {
-          width: { min: 640 },
-          height: { min: 480 },
-          facingMode: "environment",
-        },
-        target: document.querySelector('#scanner-preview')
-      },
-      decoder: {
-        readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
-      },
-      locate: true,
-    }, function(err) {
-      if (err) {
-        console.error(err);
-        scannerStatus.textContent = "Error initializing scanner: " + err.message;
+    // --- File Upload Barcode Scanning Fallback ---
+    document.getElementById('scan-file-btn').addEventListener('click', () => {
+      const fileInput = document.getElementById('barcode-file');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please select an image file.');
         return;
       }
-      Quagga.start();
-      scannerStatus.textContent = "Scanner ready. Point the camera at a barcode.";
-    });
-
-    Quagga.onDetected(data => {
-      const code = data.codeResult.code;
-      const exists = scannedItems.some(item => item.barcode === code);
-      if (!exists) {
-        scannedItems.push({
-          barcode: code,
-          name: "",
-          datetime: new Date().toLocaleString()
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imgData = e.target.result;
+        Quagga.decodeSingle({
+          src: imgData,
+          numOfWorkers: 0,
+          inputStream: {
+            size: 800
+          },
+          decoder: {
+            readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
+          },
+        }, function(result) {
+          if (result && result.codeResult) {
+            const code = result.codeResult.code;
+            const exists = scannedItems.some(item => item.barcode === code);
+            if (!exists) {
+              scannedItems.push({ barcode: code, name: "", datetime: new Date().toLocaleString() });
+              saveData();
+              alert('Barcode scanned: ' + code);
+            } else {
+              alert('Duplicate barcode detected: ' + code);
+            }
+          } else {
+            alert('Barcode not detected. Try another image.');
+          }
         });
-        saveData();
-      } else {
-        // Highlight duplicate
-        scannerStatus.textContent = `Duplicate detected: ${code}`;
-        scannerStatus.classList.add('text-red-600');
-        setTimeout(() => {
-          scannerStatus.textContent = "Scanner ready. Point the camera at a barcode.";
-          scannerStatus.classList.remove('text-red-600');
-        }, 2000);
-      }
+      };
+      reader.readAsDataURL(file);
     });
 
-    // Initial render
-    renderTable();
   </script>
 </body>
 </html>
