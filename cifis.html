@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload & Generate ID Images PDF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex flex-col">
+  <header class="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur border-b border-blue-100 shadow-sm">
+    <div class="max-w-3xl mx-auto flex items-center px-4 py-2">
+      <span class="inline-block w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow">ID</span>
+      <span class="ml-2 text-base md:text-lg font-semibold text-blue-700 tracking-tight">MonoToolz</span>
+    </div>
+  </header>
+  <main class="flex-1 w-full flex flex-col items-center px-2 pt-[62px] md:pt-[66px]">
+    <section class="w-full max-w-xl bg-white rounded-2xl shadow-lg p-4 md:p-6 mt-0 mb-8">
+      <form id="imageForm" class="space-y-4" autocomplete="off" onsubmit="return false;">
+        <!-- Hidden file input, triggered programmatically -->
+        <input id="fileInput" name="fileInput" type="file" style="display:none;" />
+      </form>
+      <!-- Consistent 3-Column Preview Grid: Passport (2 cols), Thumb+Sign stacked, ID image below -->
+      <section aria-label="Preview" class="mt-2 md:mt-6">
+        <div class="grid grid-cols-3 gap-3 md:gap-4 items-stretch">
+          <!-- Passport occupies 2 columns wide always -->
+          <div class="col-span-2 flex flex-col justify-stretch">
+            <div
+              id="passportPreview"
+              class="preview-box group flex-1 min-h-[100px] md:min-h-[120px] bg-gradient-to-br from-blue-50 to-white rounded-lg flex flex-col items-center justify-center text-gray-400 text-sm border border-gray-200 shadow-sm transition-all duration-200 cursor-pointer relative overflow-hidden hover:shadow-lg hover:scale-[1.03] focus:shadow-lg focus:scale-[1.03]"
+              tabindex="0"
+              data-type="passport"
+            >
+              <span class="absolute top-2 left-2 z-10 text-xs text-blue-600 bg-white/80 rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">Passport</span>
+              <span class="preview-placeholder">Passport</span>
+            </div>
+          </div>
+          <!-- Thumb and Sign stacked vertically in 3rd col always -->
+          <div class="flex flex-col gap-2 md:gap-3 justify-stretch">
+            <div
+              id="thumbPreview"
+              class="preview-box group flex-1 min-h-[48px] md:min-h-[56px] bg-gradient-to-br from-blue-50 to-white rounded-lg flex flex-col items-center justify-center text-gray-400 text-sm border border-gray-200 shadow-sm transition-all duration-200 cursor-pointer relative overflow-hidden hover:shadow-lg hover:scale-105 focus:shadow-lg focus:scale-105"
+              tabindex="0"
+              data-type="thumb"
+            >
+              <span class="absolute top-2 left-2 z-10 text-xs text-blue-600 bg-white/80 rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">Thumb</span>
+              <span class="preview-placeholder">Thumb</span>
+            </div>
+            <div
+              id="signPreview"
+              class="preview-box group flex-1 min-h-[48px] md:min-h-[56px] bg-gradient-to-br from-blue-50 to-white rounded-lg flex flex-col items-center justify-center text-gray-400 text-sm border border-gray-200 shadow-sm transition-all duration-200 cursor-pointer relative overflow-hidden hover:shadow-lg hover:scale-105 focus:shadow-lg focus:scale-105"
+              tabindex="0"
+              data-type="sign"
+            >
+              <span class="absolute top-2 left-2 z-10 text-xs text-blue-600 bg-white/80 rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">Sign</span>
+              <span class="preview-placeholder">Sign</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 md:mt-5">
+          <div
+            id="idImagePreview"
+            class="preview-box group w-full h-36 md:h-40 bg-gradient-to-br from-purple-50 to-white flex flex-col items-center justify-center rounded-lg text-gray-400 text-sm border border-gray-200 shadow-sm transition-all duration-200 cursor-pointer relative overflow-hidden hover:shadow-lg hover:scale-105 focus:shadow-lg focus:scale-105"
+            tabindex="0"
+            data-type="idImage"
+          >
+            <span class="absolute top-2 left-2 z-10 text-xs text-purple-700 bg-white/80 rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">ID Image</span>
+            <span class="preview-placeholder">No ID Image Uploaded</span>
+          </div>
+        </div>
+      </section>
+      <div class="mt-6 flex flex-col gap-2">
+        <button id="generatePDF" type="button" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-400 text-white font-semibold py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 focus:outline-none">Generate PDF</button>
+      </div>
+    </section>
+  </main>
+  <!-- Minimal Footer -->
+  <footer class="w-full bg-white border-t border-gray-100 py-2 text-center text-xs text-gray-400 mt-auto">
+    &copy; <span id="footerYear"></span> ID PDF Generator. <span class="text-pink-400">♥</span> <a href="https://tailwindcss.com/" class="text-blue-500 hover:underline">TailwindCSS</a>
+  </footer>
+
+  <!-- Modal Overlay -->
+  <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-2 md:px-4 hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-4 md:p-6 relative shadow-xl border border-blue-100">
+      <button id="closeModal" type="button" aria-label="Close modal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none transition-colors">&times;</button>
+      <h2 id="modalTitle" class="text-xl md:text-2xl font-semibold mb-4 text-blue-700 text-center">Preview &amp; Download PDF</h2>
+      <div class="flex flex-col gap-4">
+        <!-- Consistent 3-column grid preview in modal -->
+        <div class="grid grid-cols-3 gap-3 md:gap-4">
+          <div class="col-span-2 flex flex-col">
+            <div id="modalPassportPreview" class="flex-1 min-h-[100px] md:min-h-[120px] bg-gradient-to-br from-blue-50 to-white rounded-lg flex items-center justify-center text-gray-400 text-sm border border-gray-200 shadow-sm">Passport</div>
+          </div>
+          <div class="flex flex-col gap-2 md:gap-3">
+            <div id="modalThumbPreview" class="flex-1 min-h-[48px] md:min-h-[56px] bg-gradient-to-br from-blue-50 to-white rounded-lg flex items-center justify-center text-gray-400 text-sm border border-gray-200 shadow-sm">Thumb</div>
+            <div id="modalSignPreview" class="flex-1 min-h-[48px] md:min-h-[56px] bg-gradient-to-br from-blue-50 to-white rounded-lg flex items-center justify-center text-gray-400 text-sm border border-gray-200 shadow-sm">Sign</div>
+          </div>
+        </div>
+        <!-- ID Image Preview below grid -->
+        <div>
+          <h3 class="font-medium mb-2 text-purple-600">ID Image</h3>
+          <div id="modalIdImagePreview" class="bg-gradient-to-br from-purple-50 to-white rounded-lg flex items-center justify-center text-gray-400 text-sm min-h-[80px] md:min-h-[100px] border border-gray-200 shadow-sm">No ID Image</div>
+        </div>
+      </div>
+      <div class="mt-5">
+        <label for="pdfName" class="block text-sm font-medium text-gray-700 mb-1">PDF File Name</label>
+        <input type="text" id="pdfName" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="Enter file name" value="ID_Images" />
+      </div>
+      <button id="downloadPDF" type="button" class="mt-5 w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 focus:outline-none">Download PDF</button>
+    </div>
+  </div>
+
+  <script>
+    // --- Modular State ---
+    const { jsPDF } = window.jspdf;
+    const files = {
+      passport: null,
+      thumb: null,
+      sign: null,
+      idImage: null,
+      idImageIsPDF: false,
+      idImageFile: null
+    };
+
+    // --- DOM Elements ---
+    const fileInput = document.getElementById('fileInput');
+    const passportPreview = document.getElementById('passportPreview');
+    const thumbPreview = document.getElementById('thumbPreview');
+    const signPreview = document.getElementById('signPreview');
+    const idImagePreview = document.getElementById('idImagePreview');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const generateBtn = document.getElementById('generatePDF');
+    const closeModalBtn = document.getElementById('closeModal');
+    const downloadBtn = document.getElementById('downloadPDF');
+    const pdfNameInput = document.getElementById('pdfName');
+
+    // --- Utility Functions ---
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    function resetPreview(container, placeholder) {
+      // Use colored label for each preview type
+      let labelClass = '', labelText = '';
+      switch (container.dataset.type) {
+        case 'passport':
+          labelClass = 'text-blue-600 bg-white/80'; labelText = 'Passport'; break;
+        case 'thumb':
+          labelClass = 'text-blue-600 bg-white/80'; labelText = 'Thumb'; break;
+        case 'sign':
+          labelClass = 'text-blue-600 bg-white/80'; labelText = 'Sign'; break;
+        case 'idImage':
+          labelClass = 'text-purple-700 bg-white/80'; labelText = 'ID Image'; break;
+        default:
+          labelClass = 'text-gray-500 bg-white/80'; labelText = capitalize(container.dataset.type); break;
+      }
+      container.innerHTML = `<span class="absolute top-2 left-2 z-10 text-xs ${labelClass} rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">${labelText}</span><span class="preview-placeholder">${placeholder}</span>`;
+      container.classList.add('text-gray-400');
+    }
+    function setImagePreview(container, src, alt) {
+      let labelClass = '', labelText = '';
+      switch (container.dataset.type) {
+        case 'passport':
+          labelClass = 'text-blue-600 bg-white/80'; labelText = 'Passport'; break;
+        case 'thumb':
+          labelClass = 'text-blue-600 bg-white/80'; labelText = 'Thumb'; break;
+        case 'sign':
+          labelClass = 'text-blue-600 bg-white/80'; labelText = 'Sign'; break;
+        case 'idImage':
+          labelClass = 'text-purple-700 bg-white/80'; labelText = 'ID Image'; break;
+        default:
+          labelClass = 'text-gray-500 bg-white/80'; labelText = capitalize(container.dataset.type); break;
+      }
+      container.innerHTML =
+        `<span class="absolute top-2 left-2 z-10 text-xs ${labelClass} rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">${labelText}</span><img src="${src}" alt="${alt}" class="w-full h-full object-contain rounded-lg" />`;
+      container.classList.remove('text-gray-400');
+    }
+    function setPDFPreview(container, file) {
+      let labelClass = '', labelText = '';
+      switch (container.dataset.type) {
+        case 'idImage':
+          labelClass = 'text-purple-700 bg-white/80'; labelText = 'ID Image'; break;
+        default:
+          labelClass = 'text-gray-500 bg-white/80'; labelText = capitalize(container.dataset.type); break;
+      }
+      container.innerHTML =
+        `<span class="absolute top-2 left-2 z-10 text-xs ${labelClass} rounded px-1 py-0.5 pointer-events-none select-none font-semibold shadow-sm">${labelText}</span><span class="text-gray-700 text-sm px-2 text-center break-words">${file.name}</span>`;
+      container.classList.remove('text-gray-400');
+    }
+
+    // --- File Input and Preview Logic for Direct Box Clicks ---
+    let activeType = null;
+    // Map type to preview element
+    const previewMap = {
+      passport: passportPreview,
+      thumb: thumbPreview,
+      sign: signPreview,
+      idImage: idImagePreview
+    };
+    // Set up accept types
+    function setFileInputAccept(type) {
+      if (type === "idImage") {
+        fileInput.accept = "image/*,application/pdf";
+      } else {
+        fileInput.accept = "image/*";
+      }
+      fileInput.value = "";
+    }
+    // Highlight active box with glow/scale
+    function highlightBox(type) {
+      Object.entries(previewMap).forEach(([key, el]) => {
+        if (key === type) {
+          el.classList.add(
+            "ring-4", "ring-blue-400", "border-blue-500", "shadow-2xl", "scale-105", "z-10"
+          );
+        } else {
+          el.classList.remove(
+            "ring-4", "ring-blue-400", "border-blue-500", "shadow-2xl", "scale-105", "z-10"
+          );
+        }
+      });
+    }
+    // Handle click/focus on box
+    Object.entries(previewMap).forEach(([type, el]) => {
+      el.addEventListener("click", () => {
+        activeType = type;
+        setFileInputAccept(type);
+        highlightBox(type);
+        fileInput.click();
+      });
+      el.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          el.click();
+        }
+      });
+    });
+    // Remove highlight when clicking outside
+    document.addEventListener("click", e => {
+      if (!Object.values(previewMap).some(el => el.contains(e.target))) {
+        highlightBox(null);
+      }
+    });
+    // Show highlight on focus
+    Object.entries(previewMap).forEach(([type, el]) => {
+      el.addEventListener("focus", () => {
+        highlightBox(type);
+      });
+      el.addEventListener("blur", () => {
+        highlightBox(null);
+      });
+    });
+    // Preview handler
+    function previewHandler(type, file) {
+      if (!file) return;
+      if (type === "idImage") {
+        if (file.type === "application/pdf") {
+          files.idImage = null;
+          files.idImageIsPDF = true;
+          files.idImageFile = file;
+          setPDFPreview(idImagePreview, file);
+        } else if (file.type.startsWith("image/")) {
+          files.idImageIsPDF = false;
+          files.idImageFile = null;
+          const reader = new FileReader();
+          reader.onload = e => {
+            files.idImage = e.target.result;
+            setImagePreview(idImagePreview, e.target.result, "ID Image");
+          };
+          reader.readAsDataURL(file);
+        } else {
+          files.idImage = null;
+          files.idImageIsPDF = false;
+          files.idImageFile = null;
+          resetPreview(idImagePreview, "No ID Image Uploaded");
+        }
+      } else if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          files[type] = e.target.result;
+          setImagePreview(previewMap[type], e.target.result, capitalize(type));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        files[type] = null;
+        resetPreview(previewMap[type], capitalize(type));
+      }
+    }
+    // File input change
+    fileInput.addEventListener("change", () => {
+      if (!activeType) return;
+      const file = fileInput.files[0];
+      previewHandler(activeType, file);
+      // Remove highlight after selection
+      setTimeout(() => highlightBox(null), 500);
+    });
+    // Initial preview placeholders
+    resetPreview(passportPreview, "Passport");
+    resetPreview(thumbPreview, "Thumb");
+    resetPreview(signPreview, "Sign");
+    resetPreview(idImagePreview, "No ID Image Uploaded");
+
+    // Consistent preview box heights for all screen sizes (no responsive stacking)
+    function adjustPreviewHeights() {
+      [passportPreview, thumbPreview, signPreview, idImagePreview].forEach(el => {
+        el.style.height = "";
+        el.style.minHeight = "";
+      });
+      passportPreview.style.minHeight = "120px";
+      thumbPreview.style.minHeight = "56px";
+      signPreview.style.minHeight = "56px";
+      idImagePreview.style.height = "160px";
+    }
+    window.addEventListener("resize", adjustPreviewHeights);
+    adjustPreviewHeights();
+
+    // --- Modal Preview Functions ---
+    function setModalPreview(containerId, src, placeholder) {
+      const el = document.getElementById(containerId);
+      if (src) {
+        el.innerHTML = `<img src="${src}" alt="${placeholder}" class="w-full h-full object-contain rounded-lg" />`;
+        el.classList.remove('text-gray-400');
+      } else {
+        el.innerHTML = placeholder;
+        el.classList.add('text-gray-400');
+      }
+    }
+    function setModalIdImagePreview(containerId, imgSrc, isPDF, file) {
+      const el = document.getElementById(containerId);
+      if (!imgSrc && !isPDF) {
+        el.innerHTML = 'No ID Image';
+        el.classList.add('text-gray-400');
+        return;
+      }
+      if (isPDF && file) {
+        el.innerHTML = `<span class="text-gray-700 text-sm px-2 text-center break-words">${file.name}</span>`;
+        el.classList.remove('text-gray-400');
+      } else if (imgSrc) {
+        el.innerHTML = `<img src="${imgSrc}" alt="ID Image" class="w-full h-full object-contain rounded-lg" />`;
+        el.classList.remove('text-gray-400');
+      }
+    }
+
+    // --- Modal Controls ---
+    generateBtn.addEventListener('click', () => {
+      setModalPreview('modalPassportPreview', files.passport, 'Passport');
+      setModalPreview('modalThumbPreview', files.thumb, 'Thumb');
+      setModalPreview('modalSignPreview', files.sign, 'Sign');
+      setModalIdImagePreview('modalIdImagePreview', files.idImage, files.idImageIsPDF, files.idImageFile);
+      if (pdfNameInput.value.trim() === '') pdfNameInput.value = 'ID_Images';
+      modalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+    closeModalBtn.addEventListener('click', () => {
+      modalOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // --- PDF Generation ---
+    downloadBtn.addEventListener('click', () => {
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 36;
+
+      // --- Get actual DOM dimensions of preview grid ---
+      // Use preview grid, not modal, to match layout exactly
+      const passportEl = document.getElementById('passportPreview');
+      const thumbEl = document.getElementById('thumbPreview');
+      const signEl = document.getElementById('signPreview');
+      const idImageEl = document.getElementById('idImagePreview');
+      // Get bounding rects
+      const passportRect = passportEl.getBoundingClientRect();
+      const thumbRect = thumbEl.getBoundingClientRect();
+      const signRect = signEl.getBoundingClientRect();
+      const idImageRect = idImageEl.getBoundingClientRect();
+
+      // Determine scale so that the grid fits nicely on the page (with margin)
+      // The preview grid is a row: passport (2 cols), thumb+sign (1 col, stacked)
+      // Find total grid width and height
+      // The parent grid is the parent of passportEl (the .grid)
+      const gridParent = passportEl.closest('.grid');
+      const gridRect = gridParent.getBoundingClientRect();
+      // For ID image, use its height and width
+
+      // Compute scale to fit both grid and ID image vertically within page (with margin)
+      // Add a gap between grid and ID image (from DOM, or set to 24px)
+      const gapPx = idImageEl.offsetTop - gridParent.offsetTop - gridParent.offsetHeight;
+      const gridW = gridRect.width;
+      const gridH = gridRect.height;
+      const idW = idImageRect.width;
+      const idH = idImageRect.height;
+      const totalH = gridH + gapPx + idH;
+      // Fit to page, keeping margin
+      const maxW = pageWidth - margin * 2;
+      const maxH = pageHeight - margin * 2;
+      const scale = Math.min(maxW / Math.max(gridW, idW), maxH / totalH);
+
+      // Compute PDF positions and sizes for each box
+      // Start at top margin
+      const gridX = margin;
+      const gridY = margin;
+      const gridPDFW = gridW * scale;
+      const gridPDFH = gridH * scale;
+      // ID image box
+      const idX = margin + (gridW > idW ? (gridPDFW - idW * scale) / 2 : 0);
+      const idY = gridY + gridPDFH + gapPx * scale;
+      const idPDFW = idW * scale;
+      const idPDFH = idH * scale;
+
+      // Borders removed: do not draw doc.rect() for grid or id image
+
+      // Compute child box positions relative to grid
+      // All relative to gridParent
+      function relativeRect(childRect, parentRect) {
+        return {
+          x: (childRect.left - parentRect.left) * scale,
+          y: (childRect.top - parentRect.top) * scale,
+          w: childRect.width * scale,
+          h: childRect.height * scale
+        };
+      }
+      // Adjust: Make the top grid (passport/thumb/sign) only 1/4 of page height
+      // Keep the ID image box unchanged.
+      // We'll scale the grid to fit only 1/4 of the page height (minus margins), and adjust scale accordingly.
+      // We'll use the minimum of (maxW / gridW, (pageHeight/4) / gridH) for the grid,
+      // and for the ID image, keep its size/position as before.
+
+      // Calculate scale for grid to take only 1/4 of page height
+      const gridTargetH = (pageHeight - margin * 2) / 4;
+      const gridScale = Math.min(maxW / gridW, gridTargetH / gridH);
+      // For ID image, keep its box size and position as previously calculated (using 'scale')
+      // So, use the previous scale for ID image, but a new scale for the grid
+
+      // Compute PDF positions and sizes for each box
+      // Grid at top margin, scaled to 1/4 page height
+      const gridX_mod = margin;
+      const gridY_mod = margin;
+      const gridPDFW_mod = gridW * gridScale;
+      const gridPDFH_mod = gridH * gridScale;
+
+      // ID image box: position at the very bottom of the page
+      // Keep its width/height as previously computed (idPDFW_mod/idPDFH_mod), but y so its bottom aligns with page bottom - margin
+      const idPDFW_mod = idW * scale;
+      const idPDFH_mod = idH * scale;
+      // Center horizontally if possible
+      const idX_mod = margin + (maxW - idPDFW_mod) / 2;
+      // Position so the bottom of the ID image box is at pageHeight - margin
+      const idY_mod = pageHeight - margin - idPDFH_mod;
+
+      // Compute child box positions relative to grid
+      function relativeRectGrid(childRect, parentRect, scaleVal) {
+        return {
+          x: (childRect.left - parentRect.left) * scaleVal,
+          y: (childRect.top - parentRect.top) * scaleVal,
+          w: childRect.width * scaleVal,
+          h: childRect.height * scaleVal
+        };
+      }
+      const passportBox = relativeRectGrid(passportRect, gridRect, gridScale);
+      const thumbBox = relativeRectGrid(thumbRect, gridRect, gridScale);
+      const signBox = relativeRectGrid(signRect, gridRect, gridScale);
+      passportBox.x += gridX_mod;
+      passportBox.y += gridY_mod;
+      thumbBox.x += gridX_mod;
+      thumbBox.y += gridY_mod;
+      signBox.x += gridX_mod;
+      signBox.y += gridY_mod;
+
+      // ID image box is idX_mod/idY_mod/idPDFW_mod/idPDFH_mod
+      const idImageBox = { x: idX_mod, y: idY_mod, w: idPDFW_mod, h: idPDFH_mod };
+
+      // --- Drawing images with object-contain (maintain aspect ratio, no crop, fit in box) ---
+      function loadImage(src) {
+        return new Promise((resolve) => {
+          const img = new window.Image();
+          img.onload = () => resolve({ img, width: img.width, height: img.height });
+          img.onerror = () => resolve(null);
+          img.src = src;
+        });
+      }
+      function drawImageAspect(doc, imgSrc, box) {
+        return new Promise(resolve => {
+          const img = new window.Image();
+          img.onload = function() {
+            const iw = img.width, ih = img.height;
+            let scale = Math.min(box.w / iw, box.h / ih);
+            let drawW = iw * scale;
+            let drawH = ih * scale;
+            const dx = box.x + (box.w - drawW) / 2;
+            const dy = box.y + (box.h - drawH) / 2;
+            doc.addImage(imgSrc, 'JPEG', dx, dy, drawW, drawH, undefined, 'FAST');
+            resolve({ drawH, drawW });
+          };
+          img.onerror = () => resolve({ drawH: 0, drawW: 0 });
+          img.src = imgSrc;
+        });
+      }
+      // Draw images
+      Promise.all([
+        files.passport ? loadImage(files.passport) : Promise.resolve(null),
+        files.thumb ? loadImage(files.thumb) : Promise.resolve(null),
+        files.sign ? loadImage(files.sign) : Promise.resolve(null)
+      ]).then(async ([passportImg, thumbImg, signImg]) => {
+        const mainImages = [];
+        if (passportImg) mainImages.push(drawImageAspect(doc, files.passport, passportBox));
+        if (thumbImg) mainImages.push(drawImageAspect(doc, files.thumb, thumbBox));
+        if (signImg) mainImages.push(drawImageAspect(doc, files.sign, signBox));
+        Promise.all(mainImages).then(() => {
+          // ID image
+          if (!files.idImage && !files.idImageIsPDF) { savePDF(); return; }
+          if (files.idImageIsPDF && files.idImageFile) {
+            doc.setFontSize(14);
+            doc.text(
+              `ID Image PDF: ${files.idImageFile.name}`,
+              idImageBox.x + idImageBox.w / 2,
+              idImageBox.y + idImageBox.h / 2,
+              { align: 'center', baseline: 'middle' }
+            );
+            savePDF();
+          } else if (files.idImage) {
+            drawImageAspect(doc, files.idImage, idImageBox).then(savePDF);
+          }
+        });
+      });
+      function savePDF() {
+        let fileName = pdfNameInput.value.trim() || 'ID_Images';
+        if (!fileName.toLowerCase().endsWith('.pdf')) fileName += '.pdf';
+        doc.save(fileName);
+        modalOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+
+
+    // Set footer year
+    document.addEventListener("DOMContentLoaded", function() {
+      const yearSpan = document.getElementById("footerYear");
+      if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+      }
+    });
+  </script>
+  
+</body>
+</html>
