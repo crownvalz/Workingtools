@@ -777,9 +777,23 @@
       function savePDF() {
         let fileName = pdfNameInput.value.trim() || 'ID_Images';
         if (!fileName.toLowerCase().endsWith('.pdf')) fileName += '.pdf';
-        doc.save(fileName);
-        modalOverlay.classList.add('hidden');
-        document.body.style.overflow = '';
+        // Safari-compatible forced download
+        // Use doc.output('blob'), create a link, and click it programmatically
+        doc.output('blob').then(function(pdfBlob) {
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = blobUrl;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function() {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+          }, 100);
+          modalOverlay.classList.add('hidden');
+          document.body.style.overflow = '';
+        });
       }
     });
 
