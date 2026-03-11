@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Management - Barcode Scanner</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-blue-600 text-white p-4 text-center text-xl font-semibold">
+    Asset Management - Barcode Scanner
+  </header>
+
+  <main class="flex flex-col md:flex-row flex-1 p-4 gap-4">
+
+    <!-- Scanner Section -->
+    <section class="md:w-1/2 bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-semibold mb-2">Barcode Scanner</h2>
+      <div id="scanner-container" class="w-full h-64 border border-gray-300 rounded overflow-hidden relative flex items-center justify-center">
+        <p id="scanner-fallback-msg" class="text-gray-500 text-center px-2">
+          Camera not available. Use the button below to upload an image of a barcode.
+        </p>
+        <video id="scanner-preview" class="w-full h-full object-cover hidden"></video>
+      </div>
+      <input type="file" id="barcode-file" accept="image/*" class="mt-2 border border-gray-300 rounded px-2 py-1 w-full">
+      <p id="scanner-status" class="mt-2 text-sm text-gray-600"></p>
+      <button id="scan-file-btn" class="mt-2 w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Scan Uploaded Image</button>
+    </section>
+
+    <!-- Table Section -->
+    <section class="md:w-1/2 bg-white p-4 rounded shadow flex flex-col">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Scanned Items</h2>
+        <input type="text" id="search-input" placeholder="Search..." class="border border-gray-300 rounded px-2 py-1 text-sm">
+      </div>
+      <div class="overflow-auto flex-1">
+        <table class="min-w-full border border-gray-200 text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border p-2 text-left">Barcode</th>
+              <th class="border p-2 text-left">Item Name</th>
+              <th class="border p-2 text-left">Date/Time</th>
+              <th class="border p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scanned-table-body"></tbody>
+        </table>
+      </div>
+      <button id="export-btn" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+        Export to CSV
+      </button>
+    </section>
+
+  </main>
+
+  <script>
+    let scannedItems = JSON.parse(localStorage.getItem('scannedItems') || '[]');
+
+    function saveData() {
+      localStorage.setItem('scannedItems', JSON.stringify(scannedItems));
+      renderTable();
+    }
+
+    function renderTable(filter='') {
+      const tbody = document.getElementById('scanned-table-body');
+      tbody.innerHTML = '';
+      scannedItems
+        .filter(item => item.barcode.includes(filter) || item.name.toLowerCase().includes(filter.toLowerCase()))
+        .forEach((item, index) => {
+          const tr = document.createElement('tr');
+          tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+          tr.innerHTML = `
+            <td class="border p-2">${item.barcode}</td>
+            <td class="border p-2">
+              <input value="${item.name}" data-index="${index}" class="w-full border border-gray-200 rounded px-1 py-0.5 text-sm name-input">
+            </td>
+            <td class="border p-2">${item.datetime}</td>
+            <td class="border p-2 text-center">
+              <button data-index="${index}" class="delete-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const i = e.target.dataset.index;
+          scannedItems.splice(i, 1);
+          saveData();
+        });
+      });
+
+      document.querySelectorAll('.name-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const i = e.target.dataset.index;
+          scannedItems[i].name = e.target.value;
+          saveData();
+        });
+      });
+    }
+
+    document.getElementById('search-input').addEventListener('input', e => {
+      renderTable(e.target.value);
+    });
+
+    document.getElementById('export-btn').addEventListener('click', () => {
+      if (scannedItems.length === 0) return alert("No data to export.");
+      const csv = Papa.unparse(scannedItems);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      saveAs(blob, "scanned_assets.csv");
+    });
+
+    renderTable();
+
+    // --- File Upload Barcode Scanning Fallback ---
+    document.getElementById('scan-file-btn').addEventListener('click', () => {
+      const fileInput = document.getElementById('barcode-file');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please select an image file.');
+        return;
+      }
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imgData = e.target.result;
+        Quagga.decodeSingle({
+          src: imgData,
+          numOfWorkers: 0,
+          inputStream: {
+            size: 800
+          },
+          decoder: {
+            readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
+          },
+        }, function(result) {
+          if (result && result.codeResult) {
+            const code = result.codeResult.code;
+            const exists = scannedItems.some(item => item.barcode === code);
+            if (!exists) {
+              scannedItems.push({ barcode: code, name: "", datetime: new Date().toLocaleString() });
+              saveData();
+              alert('Barcode scanned: ' + code);
+            } else {
+              alert('Duplicate barcode detected: ' + code);
+            }
+          } else {
+            alert('Barcode not detected. Try another image.');
+          }
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+  </script>
+</body>
+</html>

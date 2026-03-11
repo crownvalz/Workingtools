@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ajira Tz | Jobs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+  <!-- Header -->
+  <header class="bg-gray-100 top-0 z-50  transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="index.html" class="text-2xl font-bold text-green-800 flex items-center gap-2 group transition-transform duration-300 hover:scale-105">
+        <span class="inline-block animate-bounce"><i class="fas fa-paper-plane"></i></span>
+        <span class="tracking-tight group-hover:text-green-800 transition-colors duration-300">Ajira Tz</span>
+      </a>
+      <button id="menuToggle" aria-label="Open menu" class="lg:hidden flex flex-col justify-center items-center w-10 h-10 relative z-50 group focus:outline-none">
+        <span class="block w-7 h-0.5 bg-gray-800 rounded transition-all duration-300 origin-center" id="line1"></span>
+        <span class="block w-3 h-0.5 bg-gray-800 mt-1 rounded transition-all duration-300 origin-center" id="line2"></span>
+        <span class="block w-5 h-0.5 bg-gray-800 mt-1 rounded transition-all duration-300 origin-center" id="line3"></span>
+      </button>
+    </div>
+    <nav id="navMenu" class="overflow-hidden max-h-0 transition-all duration-500 ease-in-out lg:max-h-none lg:overflow-visible lg:block lg:pb-4 lg:hidden rounded-b-xl">
+      <ul class="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-4 px-4 pb-4 text-center text-gray-700">
+        <li>
+          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-gray-50 hover:text-gray-600 group">
+            Home
+            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-gray-50 hover:text-gray-600 group">
+            Categories
+            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="relative px-3 py-2 rounded transition-all duration-300 hover:bg-gray-50 hover:text-gray-600 group">
+            Contact
+            <span class="absolute left-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+            <span class="absolute right-1/2 -bottom-1 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-1/2"></span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <style>
+      /* Animated underline for nav links */
+      nav ul li a.group:hover span:first-of-type,
+      nav ul li a.group:focus span:first-of-type {
+        left: 0;
+        width: 50%;
+      }
+      nav ul li a.group:hover span:last-of-type,
+      nav ul li a.group:focus span:last-of-type {
+        right: 0;
+        width: 50%;
+      }
+    </style>
+  </header>
+
+  <!-- Filters -->
+  <section class="max-w-5xl mx-auto px-4 mt-2">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex gap-2 text-sm flex-wrap">
+        <button data-type="all" class="filter-btn px-3 py-1 border rounded-full">All</button>
+        <button data-type="Government" class="filter-btn px-3 py-1 border rounded-full">Government</button>
+        <button data-type="Private" class="filter-btn px-3 py-1 border rounded-full">Private</button>
+        <button data-type="NGO" class="filter-btn px-3 py-1 border rounded-full">NGO</button>
+      </div>
+      <div class="relative flex items-center px-3 py-0 border border-gray-300 rounded-full w-full max-w-full gap-2">
+        <i class="fa fa-search text-gray-500 text-sm"></i>
+        <input id="searchInput" type="text" placeholder="Search..." class="flex-1 px-2 py-1 text-base focus:outline-none bg-transparent w-full min-w-0"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- Listings -->
+  <main class="max-w-5xl mx-auto px-4 py-4 mt-1">
+    <h1 class="text-sm md:text-sm font-semibold text-gray-800 mb-4 text-center flex items-center justify-start gap-2">
+      <i class="fa fa-briefcase text-green-700"></i>
+      Latest Jobs
+    </h1>
+    <div id="jobContainer" class="space-y-4"></div>
+    <div id="pagination" class="flex justify-center gap-4 mt-4"></div>
+  </main>
+
+  <!-- Script -->
+  <script>
+    let jobs = [], currentPage = 1, currentFilter = "all", currentSearch = "";
+    const jobsPerPage = 4;
+
+    fetch('jobs.csv')
+      .then(res => res.text())
+      .then(data => {
+        jobs = data.trim().split('\n').slice(1).map(line => {
+          const [title, organization, posted, type] = line.split(',');
+          return { title, organization, posted, type };
+        });
+        setup();
+      });
+
+    function setup() {
+      renderJobs();
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentFilter = btn.dataset.type;
+          currentPage = 1;
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-green-700', 'text-white'));
+          btn.classList.add('bg-green-700', 'text-white');
+          renderJobs();
+        });
+      });
+      document.getElementById("searchInput").addEventListener("input", e => {
+        currentSearch = e.target.value;
+        currentPage = 1;
+        renderJobs();
+      });
+      document.querySelector('[data-type="all"]').classList.add('bg-green-700', 'text-white');
+    }
+
+    function renderJobs() {
+      const container = document.getElementById("jobContainer");
+      container.innerHTML = "";
+
+      const filtered = jobs.filter(job => {
+      const matchesFilter = currentFilter === "all" || job.type === currentFilter;
+      const searchLower = currentSearch.toLowerCase();
+      const matchesSearch =
+        job.title.toLowerCase().includes(searchLower) ||
+        job.organization.toLowerCase().includes(searchLower) ||
+        job.posted.toLowerCase().includes(searchLower) ||
+        job.type.toLowerCase().includes(searchLower);
+      return matchesFilter && matchesSearch;
+    });
+
+      const paginated = filtered.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
+
+paginated.forEach(job => {
+  // Preserve name with spaces and capitalization
+  const logoFile = `${job.organization.trim()}.jpg`;
+  const logoPath = `logos/${logoFile}`;
+
+  container.innerHTML += `
+    <div class="bg-white p-3 rounded-lg shadow transition duration-200 mb-2">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+        
+        <!-- Left: Logo & Info -->
+        <div class="flex items-start gap-2">
+          <img src="${logoPath}" alt="${job.organization}"
+               onerror="this.onerror=null; this.src='logos/default.jpg';"
+               class="w-10 h-10 rounded-lg object-cover">
+          <div>
+            <h2 class="font-semibold text-lg text-gray-800 leading-tight inline">${job.title}</h2>
+            <span class="mx-2 text-gray-400 text-xs align-middle">|</span>
+            <p class="text-xs text-gray-600 inline mt-0.5 align-middle">${job.organization}</p>
+            <div class="flex flex-wrap gap-1 mt-1 text-xs text-gray-500">
+              <span class="flex items-center gap-1"><i class="fa fa-calendar text-gray-500 text-xs"></i>${job.posted}</span>
+              <span class="flex items-center gap-1 font-bold"><i class="fa fa-clock text-yellow-500 text-xs"></i>Full Time</span>
+              <span class="bg-gray-100 text-blue-700 font-medium px-2 py-0.5 rounded-full text-[10px]">${job.type}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-2 flex-wrap md:flex-nowrap md:mt-0">
+          <a href="https://whatsapp.com/channel/0029Vb5b6757z4km5Srzto1G" target="_blank"
+            class="text-green-600 hover:text-green-800 text-xs flex items-center font-bold gap-1 transition">
+            <i class="fab fa-whatsapp text-lg font-bold"></i> WhatsApp
+          </a>
+          <a href="item.html?title=${encodeURIComponent(job.title)}&organization=${encodeURIComponent(job.organization)}&posted=${encodeURIComponent(job.posted)}&type=${encodeURIComponent(job.type)}"
+            class="ml-auto flex justify-center items-center bg-gray-600 hover:bg-green-700 text-white text-xs px-4 py-1.5 rounded shadow-sm transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 font-bold"
+            style="min-width: 70px; text-align: center;">
+            Apply
+          </a>
+        </div>
+      </div>
+    </div>`;
+});
+
+      renderPagination(filtered.length);
+    }
+
+    function renderPagination(total) {
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+      const totalPages = Math.ceil(total / jobsPerPage);
+      for (let i = 1; i <= totalPages; i++) {
+        pagination.innerHTML += `<button class="px-3 py-1 rounded ${i === currentPage ? 'bg-gray-600 text-white' : 'border'}" onclick="currentPage=${i};renderJobs();">${i}</button>`;
+      }
+    }
+  </script>
+    <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const navMenu = document.getElementById("navMenu");
+    const line1 = document.getElementById("line1");
+    const line2 = document.getElementById("line2");
+    const line3 = document.getElementById("line3");
+
+    let menuOpen = false;
+
+    menuToggle.addEventListener("click", () => {
+      menuOpen = !menuOpen;
+
+      // Animate menu button for perfect X
+      if (menuOpen) {
+        line1.classList.add("rotate-45", "translate-y-2");
+        line2.classList.add("opacity-0");
+        line3.classList.add("-rotate-45", "-translate-y-2");
+      } else {
+        line1.classList.remove("rotate-45", "translate-y-2");
+        line2.classList.remove("opacity-0");
+        line3.classList.remove("-rotate-45", "-translate-y-2");
+      }
+
+      // Animate nav menu
+      if (menuOpen) {
+        navMenu.style.maxHeight = navMenu.scrollHeight + "px";
+      } else {
+        navMenu.style.maxHeight = "0px";
+      }
+    });
+  </script>
+</body>
+</html>
